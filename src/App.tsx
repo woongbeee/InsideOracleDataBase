@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import { OracleDiagram } from '@/components/OracleDiagram'
 import { QueryInput } from '@/components/QueryInput'
 import { DataPanel } from '@/components/DataPanel'
@@ -12,12 +12,49 @@ import { cn } from '@/lib/utils'
 
 type MainView = 'simulator' | 'erd'
 
+const QUERY_PANEL_MIN = 120
+const QUERY_PANEL_MAX = 520
+const QUERY_PANEL_DEFAULT = 208 // h-52 = 13rem = 208px
+
 export function App() {
   const [dataPanelOpen, setDataPanelOpen] = useState(false)
   const [mainView, setMainView] = useState<MainView>('simulator')
   const [optimizerOpen, setOptimizerOpen] = useState(false)
+  const [queryPanelHeight, setQueryPanelHeight] = useState(QUERY_PANEL_DEFAULT)
+  const isDragging = useRef(false)
+  const dragStartY = useRef(0)
+  const dragStartHeight = useRef(0)
   const optimizerResult = useSimulationStore((s) => s.optimizerResult)
   const isRunning = useSimulationStore((s) => s.isRunning)
+
+  const onDragStart = useCallback((e: React.MouseEvent) => {
+    isDragging.current = true
+    dragStartY.current = e.clientY
+    dragStartHeight.current = queryPanelHeight
+    document.body.style.cursor = 'row-resize'
+    document.body.style.userSelect = 'none'
+  }, [queryPanelHeight])
+
+  useEffect(() => {
+    const onMouseMove = (e: MouseEvent) => {
+      if (!isDragging.current) return
+      const delta = dragStartY.current - e.clientY
+      const next = Math.min(QUERY_PANEL_MAX, Math.max(QUERY_PANEL_MIN, dragStartHeight.current + delta))
+      setQueryPanelHeight(next)
+    }
+    const onMouseUp = () => {
+      if (!isDragging.current) return
+      isDragging.current = false
+      document.body.style.cursor = ''
+      document.body.style.userSelect = ''
+    }
+    window.addEventListener('mousemove', onMouseMove)
+    window.addEventListener('mouseup', onMouseUp)
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove)
+      window.removeEventListener('mouseup', onMouseUp)
+    }
+  }, [])
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-background text-foreground">
@@ -90,15 +127,15 @@ export function App() {
           <DataPanel open={dataPanelOpen} onToggle={() => setDataPanelOpen((v) => !v)} />
         )}
 
-        <div className="flex flex-1 overflow-hidden">
-          <div className="flex-1 overflow-hidden">
+        <div className="flex min-h-0 flex-1 overflow-hidden">
+          <div className="min-h-0 flex-1 overflow-hidden">
             {mainView === 'simulator' ? <OracleDiagram /> : <SchemaDiagramView />}
           </div>
 
           {/* Optimizer panel */}
           {mainView === 'simulator' && optimizerOpen && (
-            <div className="h-full w-[420px] shrink-0 overflow-hidden border-l bg-card">
-              <div className="flex items-center gap-2 border-b bg-muted/50 px-3 py-2">
+            <div className="flex min-h-0 w-[420px] shrink-0 flex-col overflow-hidden border-l bg-card">
+              <div className="flex shrink-0 items-center gap-2 border-b bg-muted/50 px-3 py-2">
                 <span className="font-mono text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
                   CBO Optimizer
                 </span>
@@ -108,7 +145,9 @@ export function App() {
                   </span>
                 )}
               </div>
-              <OptimizerPanel result={optimizerResult} />
+              <div className="min-h-0 flex-1 overflow-hidden">
+                <OptimizerPanel result={optimizerResult} />
+              </div>
             </div>
           )}
         </div>
@@ -116,8 +155,17 @@ export function App() {
 
       {/* ── Query Input ── */}
       {mainView === 'simulator' && (
-        <div className="h-52 shrink-0 border-t">
-          <QueryInput />
+        <div className="shrink-0 border-t" style={{ height: queryPanelHeight }}>
+          {/* Drag handle */}
+          <div
+            onMouseDown={onDragStart}
+            className="group flex h-1.5 w-full cursor-row-resize items-center justify-center bg-transparent hover:bg-border/60 active:bg-border"
+          >
+            <div className="h-0.5 w-10 rounded-full bg-border transition-all group-hover:bg-muted-foreground/50 group-active:bg-muted-foreground" />
+          </div>
+          <div className="h-[calc(100%-6px)]">
+            <QueryInput />
+          </div>
         </div>
       )}
     </div>

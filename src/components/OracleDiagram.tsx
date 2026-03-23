@@ -7,13 +7,27 @@ function useIsActive(id: string) {
   return useSimulationStore((s) => s.activeComponents.has(id))
 }
 
-type Accent = 'blue' | 'orange' | 'amber' | 'neutral'
+type Accent = 'blue' | 'orange' | 'amber' | 'neutral' | 'indigo' | 'teal' | 'slate'
 
 const ACCENT: Record<Accent, { border: string; bg: string; text: string; ring: string }> = {
-  blue:    { border: 'border-blue-400',    bg: 'bg-blue-50',    text: 'text-blue-700',   ring: 'ring-blue-200' },
-  orange:  { border: 'border-orange-400',  bg: 'bg-orange-50',  text: 'text-orange-700', ring: 'ring-orange-200' },
-  amber:   { border: 'border-amber-400',   bg: 'bg-amber-50',   text: 'text-amber-700',  ring: 'ring-amber-200' },
-  neutral: { border: 'border-border',      bg: 'bg-card',       text: 'text-foreground',  ring: '' },
+  blue:    { border: 'border-blue-500',    bg: 'bg-blue-100',    text: 'text-blue-800',   ring: 'ring-blue-300' },
+  indigo:  { border: 'border-indigo-500',  bg: 'bg-indigo-100',  text: 'text-indigo-800', ring: 'ring-indigo-300' },
+  teal:    { border: 'border-teal-500',    bg: 'bg-teal-100',    text: 'text-teal-800',   ring: 'ring-teal-300' },
+  orange:  { border: 'border-orange-500',  bg: 'bg-orange-100',  text: 'text-orange-800', ring: 'ring-orange-300' },
+  amber:   { border: 'border-amber-500',   bg: 'bg-amber-100',   text: 'text-amber-800',  ring: 'ring-amber-300' },
+  slate:   { border: 'border-slate-400',   bg: 'bg-slate-100',   text: 'text-slate-700',  ring: 'ring-slate-200' },
+  neutral: { border: 'border-border',      bg: 'bg-card',        text: 'text-foreground',  ring: '' },
+}
+
+// Idle (non-active) tints per accent — subtle background tint always visible
+const IDLE_TINT: Record<Accent, string> = {
+  blue:    'border-blue-200/80 bg-blue-50/60',
+  indigo:  'border-indigo-200/80 bg-indigo-50/60',
+  teal:    'border-teal-200/80 bg-teal-50/60',
+  orange:  'border-orange-200/80 bg-orange-50/60',
+  amber:   'border-amber-200/80 bg-amber-50/60',
+  slate:   'border-slate-200/80 bg-slate-50/60',
+  neutral: 'border-border bg-card',
 }
 
 interface BlockProps {
@@ -29,14 +43,15 @@ interface BlockProps {
 function Block({ id, label, sublabel, description, accent, className = '', children }: BlockProps) {
   const active = useIsActive(id)
   const c = ACCENT[accent]
+  const idle = IDLE_TINT[accent]
 
   return (
     <motion.div
       animate={active ? { scale: [1, 1.03, 1] } : { scale: 1 }}
       transition={{ duration: 0.4, repeat: active ? Infinity : 0, repeatDelay: 0.3 }}
       className={cn(
-        'relative flex flex-col rounded-lg border-2 p-2.5 transition-all duration-150',
-        active ? [c.border, c.bg, 'ring-2', c.ring] : 'border-border bg-card shadow-xs',
+        'relative flex flex-col rounded-lg border-2 p-2.5 transition-all duration-200',
+        active ? [c.border, c.bg, 'ring-2', c.ring, 'shadow-md'] : idle,
         className
       )}
     >
@@ -56,26 +71,37 @@ function Block({ id, label, sublabel, description, accent, className = '', child
   )
 }
 
-function ProcessBadge({ id, label, description }: { id: string; label: string; description: string }) {
+function ProcessBadge({ id, label, description, color = 'amber' }: {
+  id: string; label: string; description: string; color?: 'amber' | 'orange' | 'teal' | 'indigo'
+}) {
   const active = useIsActive(id)
+
+  const colorMap = {
+    amber:  { idle: 'border-amber-200/80 bg-amber-50/60',   active: 'border-amber-500 bg-amber-100 ring-amber-300', text: 'text-amber-800',  dot: 'text-amber-500' },
+    orange: { idle: 'border-orange-200/80 bg-orange-50/60', active: 'border-orange-500 bg-orange-100 ring-orange-300', text: 'text-orange-800', dot: 'text-orange-500' },
+    teal:   { idle: 'border-teal-200/80 bg-teal-50/60',     active: 'border-teal-500 bg-teal-100 ring-teal-300',     text: 'text-teal-800',   dot: 'text-teal-500' },
+    indigo: { idle: 'border-indigo-200/80 bg-indigo-50/60', active: 'border-indigo-500 bg-indigo-100 ring-indigo-300', text: 'text-indigo-800', dot: 'text-indigo-500' },
+  }
+  const c = colorMap[color]
+
   return (
     <motion.div
       animate={active ? { y: [0, -3, 0], scale: [1, 1.06, 1] } : { y: 0, scale: 1 }}
       transition={{ duration: 0.45, repeat: active ? Infinity : 0, repeatDelay: 0.2 }}
       className={cn(
-        'flex flex-col items-center rounded-lg border-2 px-2 py-2 transition-all duration-150',
-        active ? 'border-amber-400 bg-amber-50 ring-2 ring-amber-200' : 'border-border bg-card shadow-xs'
+        'flex flex-col items-center rounded-lg border-2 px-2 py-2 transition-all duration-200',
+        active ? [c.active, 'ring-2 shadow-md'] : c.idle
       )}
       title={description}
     >
-      <span className={cn('text-[11px] font-bold', active ? 'text-amber-700' : 'text-foreground')}>
+      <span className={cn('text-[11px] font-bold', active ? c.text : 'text-foreground')}>
         {label}
       </span>
       {active && (
         <motion.span
           animate={{ opacity: [1, 0.4, 1] }}
           transition={{ repeat: Infinity, duration: 0.8 }}
-          className="mt-0.5 text-[9px] font-bold text-amber-500"
+          className={cn('mt-0.5 text-[9px] font-bold', c.dot)}
         >
           ● ACTIVE
         </motion.span>
@@ -84,30 +110,28 @@ function ProcessBadge({ id, label, description }: { id: string; label: string; d
   )
 }
 
-function SectionLabel({ children }: { children: React.ReactNode }) {
+function SectionLabel({ children, color = 'default' }: { children: React.ReactNode; color?: 'default' | 'blue' | 'indigo' | 'amber' | 'slate' }) {
+  const textCls = {
+    default: 'text-muted-foreground',
+    blue:    'text-blue-600',
+    indigo:  'text-indigo-600',
+    amber:   'text-amber-700',
+    slate:   'text-slate-500',
+  }[color]
+  const lineCls = {
+    default: 'bg-border',
+    blue:    'bg-blue-200',
+    indigo:  'bg-indigo-200',
+    amber:   'bg-amber-200',
+    slate:   'bg-slate-200',
+  }[color]
+
   return (
     <div className="mb-2 flex items-center gap-2">
-      <span className="text-[9px] font-bold uppercase tracking-[0.15em] text-muted-foreground">
+      <span className={cn('text-[9px] font-bold uppercase tracking-[0.15em]', textCls)}>
         {children}
       </span>
-      <div className="h-px flex-1 bg-border" />
-    </div>
-  )
-}
-
-function GroupBox({ children, label, tint = false, className = '' }: {
-  children: React.ReactNode; label: string; tint?: boolean; className?: string
-}) {
-  return (
-    <div
-      className={cn(
-        'rounded-xl border p-3',
-        tint ? 'border-blue-200 bg-blue-50/40' : 'border-border bg-muted/30',
-        className
-      )}
-    >
-      <SectionLabel>{label}</SectionLabel>
-      {children}
+      <div className={cn('h-px flex-1', lineCls)} />
     </div>
   )
 }
@@ -131,11 +155,13 @@ function LibraryCacheBlock() {
       animate={active ? { scale: [1, 1.03, 1] } : { scale: 1 }}
       transition={{ duration: 0.4, repeat: active ? Infinity : 0, repeatDelay: 0.3 }}
       className={cn(
-        'relative flex flex-col rounded-lg border-2 p-2.5 transition-all duration-150',
-        active ? 'border-blue-400 bg-blue-50 ring-2 ring-blue-200' : 'border-border bg-card shadow-xs'
+        'relative flex flex-col rounded-lg border-2 p-2.5 transition-all duration-200',
+        active
+          ? 'border-indigo-500 bg-indigo-100 ring-2 ring-indigo-300 shadow-md'
+          : 'border-indigo-200/80 bg-indigo-50/60'
       )}
     >
-      <div className={cn('text-xs font-semibold', active ? 'text-blue-700' : 'text-foreground')}>
+      <div className={cn('text-xs font-semibold', active ? 'text-indigo-800' : 'text-foreground')}>
         Library Cache
       </div>
       <div className="mt-1 text-[10px] leading-snug text-muted-foreground">
@@ -148,10 +174,10 @@ function LibraryCacheBlock() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="mt-2 overflow-hidden rounded-md border border-blue-200 bg-white"
+            className="mt-2 overflow-hidden rounded-md border border-indigo-200 bg-white/90"
           >
-            <div className="border-b border-blue-100 px-2 py-1">
-              <span className="font-mono text-[9px] font-bold uppercase tracking-widest text-blue-500">
+            <div className="border-b border-indigo-100 bg-indigo-50 px-2 py-1">
+              <span className="font-mono text-[9px] font-bold uppercase tracking-widest text-indigo-500">
                 cached cursor pool
               </span>
             </div>
@@ -164,21 +190,21 @@ function LibraryCacheBlock() {
                   <motion.div
                     key={cq}
                     initial={{ opacity: 0, x: -4 }}
-                    animate={{ opacity: 1, x: 0, background: isMatch && (isHit || isScanning) ? '#dbeafe' : 'transparent' }}
+                    animate={{ opacity: 1, x: 0, background: isMatch && (isHit || isScanning) ? '#e0e7ff' : 'transparent' }}
                     transition={{ delay: isScanning ? i * 0.18 : 0, duration: 0.35 }}
                     className="flex items-center gap-1.5 rounded px-1.5 py-0.5"
                   >
-                    <span className={cn('shrink-0 font-mono text-[8px] font-bold', isMatch ? 'text-blue-600' : 'text-muted-foreground')}>
+                    <span className={cn('shrink-0 font-mono text-[8px] font-bold', isMatch ? 'text-indigo-600' : 'text-muted-foreground')}>
                       #{i + 1}
                     </span>
-                    <span className={cn('flex-1 truncate font-mono text-[9px]', isMatch ? 'font-bold text-blue-800' : 'text-muted-foreground')}>
+                    <span className={cn('flex-1 truncate font-mono text-[9px]', isMatch ? 'font-bold text-indigo-800' : 'text-muted-foreground')}>
                       {cq}
                     </span>
                     {isMatch && isHit && (
                       <motion.span
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
-                        className="shrink-0 rounded bg-blue-600 px-1 font-mono text-[8px] font-bold text-white"
+                        className="shrink-0 rounded bg-indigo-600 px-1 font-mono text-[8px] font-bold text-white"
                       >
                         HIT
                       </motion.span>
@@ -227,11 +253,11 @@ function BufferCacheBlock() {
   ]
 
   const blockCls: Record<string, string> = {
-    cached:   'bg-blue-50 text-blue-700 border-blue-200',
-    hit:      'bg-blue-200 text-blue-900 border-blue-500',
-    scanning: 'bg-amber-50 text-amber-700 border-amber-300',
+    cached:   'bg-blue-100 text-blue-800 border-blue-300',
+    hit:      'bg-blue-300 text-blue-900 border-blue-600 font-bold',
+    scanning: 'bg-amber-100 text-amber-800 border-amber-400',
     free:     'bg-muted text-muted-foreground border-border',
-    loading:  'bg-orange-50 text-orange-700 border-orange-300',
+    loading:  'bg-orange-100 text-orange-800 border-orange-400',
   }
 
   return (
@@ -239,11 +265,13 @@ function BufferCacheBlock() {
       animate={active ? { scale: [1, 1.03, 1] } : { scale: 1 }}
       transition={{ duration: 0.4, repeat: active ? Infinity : 0, repeatDelay: 0.3 }}
       className={cn(
-        'relative flex flex-col rounded-lg border-2 p-2.5 transition-all duration-150',
-        active ? 'border-blue-400 bg-blue-50 ring-2 ring-blue-200' : 'border-border bg-card shadow-xs'
+        'relative flex flex-col rounded-lg border-2 p-2.5 transition-all duration-200',
+        active
+          ? 'border-blue-500 bg-blue-100 ring-2 ring-blue-300 shadow-md'
+          : 'border-blue-200/80 bg-blue-50/60'
       )}
     >
-      <div className={cn('text-xs font-semibold', active ? 'text-blue-700' : 'text-foreground')}>
+      <div className={cn('text-xs font-semibold', active ? 'text-blue-800' : 'text-foreground')}>
         Database Buffer Cache
       </div>
       <div className="mt-1 text-[10px] leading-snug text-muted-foreground">
@@ -296,9 +324,9 @@ export function OracleDiagram() {
     <div className="flex h-full flex-col gap-3 overflow-auto p-4">
       {/* Instance header */}
       <div className="flex items-center gap-3">
-        <div className="flex items-center gap-2 rounded-lg border bg-card px-3 py-1.5">
+        <div className="flex items-center gap-2 rounded-lg border border-blue-300 bg-blue-50 px-3 py-1.5">
           <span className="h-2 w-2 rounded-full bg-blue-500" />
-          <span className="font-mono text-xs font-bold">Oracle Database Instance</span>
+          <span className="font-mono text-xs font-bold text-blue-800">Oracle Database Instance</span>
         </div>
         <AnimatePresence mode="wait">
           {currentStep !== 'idle' && (
@@ -322,46 +350,53 @@ export function OracleDiagram() {
 
       {/* Server Process + PGA */}
       <div className="grid grid-cols-2 gap-2">
-        <Block id="server-process" label="Server Process" description="사용자 요청 수신, SQL 파싱 수행" accent="blue" />
-        <Block id="pga" label="PGA" sublabel="Program Global Area" description="세션별 독립 메모리. Sort/Hash 작업 영역" accent="blue" />
+        <Block id="server-process" label="Server Process" description="사용자 요청 수신, SQL 파싱 수행" accent="teal" />
+        <Block id="pga" label="PGA" sublabel="Program Global Area" description="세션별 독립 메모리. Sort/Hash 작업 영역" accent="teal" />
       </div>
 
       {/* SGA */}
-      <GroupBox label="SGA — System Global Area" tint>
-        <div className="mb-2 rounded-lg border border-blue-200 bg-blue-50/60 p-2.5">
-          <SectionLabel>Shared Pool</SectionLabel>
+      <div className="rounded-xl border-2 border-blue-300 bg-blue-50/50 p-3 shadow-sm">
+        <SectionLabel color="blue">SGA — System Global Area</SectionLabel>
+
+        {/* Shared Pool */}
+        <div className="mb-3 rounded-lg border-2 border-indigo-200 bg-indigo-50/70 p-2.5">
+          <SectionLabel color="indigo">Shared Pool</SectionLabel>
           <div className="grid grid-cols-2 gap-2">
             <LibraryCacheBlock />
-            <Block id="dict-cache" label="Data Dictionary Cache" description="테이블·컬럼 메타데이터. Hard Parse 시 조회" accent="blue" />
+            <Block id="dict-cache" label="Data Dictionary Cache" description="테이블·컬럼 메타데이터. Hard Parse 시 조회" accent="indigo" />
           </div>
         </div>
+
+        {/* Buffer Cache + Redo + Undo */}
         <div className="grid grid-cols-3 gap-2">
           <BufferCacheBlock />
           <Block id="redo-buffer" label="Redo Log Buffer" description="변경사항 순차 기록. LGWR → 디스크" accent="orange" />
           <Block id="undo" label="Undo Segment" description="롤백 및 읽기 일관성 (Read Consistency)" accent="amber" />
         </div>
-      </GroupBox>
+      </div>
 
       {/* Background Processes */}
-      <GroupBox label="Background Processes">
+      <div className="rounded-xl border-2 border-amber-200 bg-amber-50/40 p-3 shadow-sm">
+        <SectionLabel color="amber">Background Processes</SectionLabel>
         <div className="grid grid-cols-5 gap-2">
-          <ProcessBadge id="dbwr" label="DBWn" description="Dirty Buffer → 데이터 파일 쓰기" />
-          <ProcessBadge id="lgwr" label="LGWR" description="Redo Buffer → Redo Log 파일 쓰기" />
-          <ProcessBadge id="ckpt" label="CKPT" description="체크포인트 정보 기록" />
-          <ProcessBadge id="smon" label="SMON" description="Instance Recovery, 임시 세그먼트 정리" />
-          <ProcessBadge id="pmon" label="PMON" description="실패한 프로세스 복구, 락 해제" />
+          <ProcessBadge id="dbwr" label="DBWn" description="Dirty Buffer → 데이터 파일 쓰기"          color="orange" />
+          <ProcessBadge id="lgwr" label="LGWR" description="Redo Buffer → Redo Log 파일 쓰기"        color="orange" />
+          <ProcessBadge id="ckpt" label="CKPT" description="체크포인트 정보 기록"                     color="amber" />
+          <ProcessBadge id="smon" label="SMON" description="Instance Recovery, 임시 세그먼트 정리"    color="amber" />
+          <ProcessBadge id="pmon" label="PMON" description="실패한 프로세스 복구, 락 해제"             color="teal" />
         </div>
-      </GroupBox>
+      </div>
 
       {/* Disk */}
-      <GroupBox label="Disk Storage">
+      <div className="rounded-xl border-2 border-slate-300 bg-slate-50/60 p-3 shadow-sm">
+        <SectionLabel color="slate">Disk Storage</SectionLabel>
         <div className="grid grid-cols-4 gap-2">
-          <Block id="disk"          label="Data Files"       description="테이블·인덱스 실제 데이터"  accent="orange" />
-          <Block id="redo-log-file" label="Online Redo Logs" description="순환 로그. 장애 복구용"      accent="orange" />
-          <Block id="control-file"  label="Control File"     description="DB 구조·상태 메타데이터"    accent="amber" />
-          <Block id="archive-log"   label="Archive Logs"     description="전체 복구용 아카이브"        accent="amber" />
+          <Block id="disk"          label="Data Files"       description="테이블·인덱스 실제 데이터"  accent="slate" />
+          <Block id="redo-log-file" label="Online Redo Logs" description="순환 로그. 장애 복구용"      accent="slate" />
+          <Block id="control-file"  label="Control File"     description="DB 구조·상태 메타데이터"    accent="slate" />
+          <Block id="archive-log"   label="Archive Logs"     description="전체 복구용 아카이브"        accent="slate" />
         </div>
-      </GroupBox>
+      </div>
     </div>
   )
 }

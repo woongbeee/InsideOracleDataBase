@@ -51,6 +51,7 @@ export interface SimulationState {
   highlightedStep: SimulationStep | null   // user-clicked step for pinned highlight
   dataFlowArrows: Array<{ from: string; to: string; id: string }>
   lastQueryCached: boolean
+  bufferFlushed: boolean                  // true after flushBuffers() — forces buffer miss on next query
   stepLog: Array<{ step: SimulationStep; message: string; timestamp: number }>
   stepSummary: StepSummary[]              // ordered summary built during run
   cachedQueries: string[]                 // queries in Library Cache (simulated)
@@ -98,6 +99,7 @@ const initialState: SimulationState = {
   highlightedStep: null,
   dataFlowArrows: [],
   lastQueryCached: false,
+  bufferFlushed: false,
   stepLog: [],
   stepSummary: [],
   cachedQueries: INITIAL_CACHED_QUERIES,
@@ -141,6 +143,9 @@ export const useSimulationStore = create<SimulationState & SimulationActions>((s
     const libraryCacheHit = store.cachedQueries
       .map((q) => q.trim().toUpperCase())
       .includes(query.trim().toUpperCase())
+
+    // Buffer flush 이후엔 반드시 miss → disk I/O 발생
+    const bufferCacheHit = !store.bufferFlushed && Math.random() > 0.5
 
     // Run optimizer always
     let optimizerResult: OptimizerResult | null = null
@@ -220,7 +225,7 @@ export const useSimulationStore = create<SimulationState & SimulationActions>((s
         result: 'info',
         duration: 900,
       },
-      ...(Math.random() > 0.5
+      ...(bufferCacheHit
         ? [
             {
               step: 'buffer-cache-hit' as SimulationStep,
@@ -234,7 +239,9 @@ export const useSimulationStore = create<SimulationState & SimulationActions>((s
             {
               step: 'buffer-cache-miss' as SimulationStep,
               label: 'Buffer Cache MISS',
-              message: '데이터 블록이 메모리에 없음 — 디스크 I/O 발생',
+              message: store.bufferFlushed
+                ? 'Buffer Flush 이후 캐시가 비워짐 — 디스크 I/O 필요'
+                : '데이터 블록이 메모리에 없음 — 디스크 I/O 발생',
               result: 'miss' as StepSummary['result'],
               duration: 600,
             },
@@ -294,7 +301,7 @@ export const useSimulationStore = create<SimulationState & SimulationActions>((s
       }))
     }
 
-    set({ isRunning: false, isComplete: true, lastQueryCached: true })
+    set({ isRunning: false, isComplete: true, lastQueryCached: true, bufferFlushed: false })
   },
 
   resetSimulation: () =>
@@ -319,7 +326,7 @@ export const useSimulationStore = create<SimulationState & SimulationActions>((s
     await new Promise((r) => setTimeout(r, 500))
     set({ activeComponents: new Set(['ckpt']) })
     await new Promise((r) => setTimeout(r, 400))
-    set({ activeComponents: new Set(), dataFlowArrows: [] })
+    set({ activeComponents: new Set(), dataFlowArrows: [], bufferFlushed: true })
   },
 
   setStep: (step) =>
