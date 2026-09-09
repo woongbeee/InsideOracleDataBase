@@ -2,8 +2,8 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useSimulationStore } from '@/store/simulationStore'
 import { ChapterTitle, Prose, InfoBox } from '../../shared'
-import { OracleInstanceMap } from '../shared/OracleInstanceMap'
-import type { InstanceComponentId } from '../shared/OracleInstanceMap'
+import { OracleArchitectureDiagram } from '../shared/OracleArchitectureDiagram'
+import type { ArchComponentId } from '../shared/OracleArchitectureDiagram'
 import { cn } from '@/lib/utils'
 
 // ── Tour items ─────────────────────────────────────────────────────────────
@@ -11,8 +11,8 @@ import { cn } from '@/lib/utils'
 type DetailRow = { termKo: string; termEn: string; descKo: string; descEn: string }
 
 type TourEntry = {
-  mapId: InstanceComponentId        // OracleInstanceMap에서 data-component-id와 1:1 대응
-  highlightIds: InstanceComponentId[] // 다이어그램에서 하이라이트할 블록들
+  mapId: ArchComponentId        // OracleArchitectureDiagram에서 data-arch-id와 1:1 대응
+  highlightIds: ArchComponentId[] // 다이어그램에서 하이라이트할 블록들
   labelKo: string
   labelEn: string
   titleKo: string
@@ -91,7 +91,7 @@ const TOUR: TourEntry[] = [
   },
   {
     mapId: 'sga',
-    highlightIds: ['sga', 'shared-pool', 'library-cache', 'dict-cache', 'buffer-cache', 'redo-buffer', 'large-pool'],
+    highlightIds: ['sga'],
     labelKo: 'SGA',
     labelEn: 'SGA',
     titleKo: 'SGA — 모든 세션이 함께 쓰는 공용 메모리',
@@ -129,7 +129,7 @@ const TOUR: TourEntry[] = [
   },
   {
     mapId: 'shared-pool',
-    highlightIds: ['shared-pool', 'library-cache', 'dict-cache'],
+    highlightIds: ['shared-pool'],
     labelKo: 'Shared Pool',
     labelEn: 'Shared Pool',
     titleKo: 'Shared Pool — SQL 분석 결과와 테이블 구조 정보 캐시',
@@ -166,8 +166,8 @@ const TOUR: TourEntry[] = [
     badgeCls: 'bg-blue',
   },
   {
-    mapId: 'dbwr',
-    highlightIds: ['dbwr', 'lgwr', 'ckpt', 'smon', 'pmon', 'arcn'],
+    mapId: 'bg-processes',
+    highlightIds: ['bg-processes'],
     labelKo: 'Background Processes',
     labelEn: 'Background Processes',
     titleKo: 'Background Processes — 보이지 않는 곳에서 일하는 관리자들',
@@ -216,8 +216,8 @@ const TOUR: TourEntry[] = [
     badgeCls: 'bg-amber',
   },
   {
-    mapId: 'disk',
-    highlightIds: ['disk', 'redo-log-file', 'control-file', 'archive-log'],
+    mapId: 'database',
+    highlightIds: ['database'],
     labelKo: 'Disk Storage',
     labelEn: 'Disk Storage',
     titleKo: 'Disk Storage — 전원이 꺼져도 사라지지 않는 영구 저장소',
@@ -344,8 +344,8 @@ const T = {
 }
 
 // 클릭 가능한 6개 영역 — mapId와 1:1 대응
-const CLICKABLE_IDS: InstanceComponentId[] = [
-  'server-process', 'pga', 'sga', 'shared-pool', 'dbwr', 'disk',
+const CLICKABLE_IDS: ArchComponentId[] = [
+  'server-process', 'pga', 'sga', 'shared-pool', 'bg-processes', 'database',
 ]
 
 // ── OverviewSection ────────────────────────────────────────────────────────
@@ -357,7 +357,7 @@ export function OverviewSection() {
 
   const active = activeIdx !== null ? TOUR[activeIdx] : null
 
-  function handleSelect(id: InstanceComponentId) {
+  function handleSelect(id: ArchComponentId) {
     const idx = TOUR.findIndex((item) => item.mapId === id)
     if (idx !== -1) setActiveIdx((prev) => (prev === idx ? null : idx))
   }
@@ -480,8 +480,8 @@ function ClickableMap({
   activeIds,
   onSelect,
 }: {
-  activeIds: InstanceComponentId[]
-  onSelect: (id: InstanceComponentId) => void
+  activeIds: ArchComponentId[]
+  onSelect: (id: ArchComponentId) => void
 }) {
   const lang = useSimulationStore((s) => s.lang)
 
@@ -495,19 +495,19 @@ function ClickableMap({
         onClick={(e) => {
           let el = e.target as HTMLElement | null
           while (el && el !== e.currentTarget) {
-            const id = el.getAttribute('data-component-id')
-            if (id && CLICKABLE_IDS.includes(id as InstanceComponentId)) {
-              onSelect(id as InstanceComponentId)
+            const id = el.getAttribute('data-arch-id')
+            if (id && CLICKABLE_IDS.includes(id as ArchComponentId)) {
+              onSelect(id as ArchComponentId)
               return
             }
             el = el.parentElement
           }
         }}
       >
-        <OracleInstanceMap
+        <OracleArchitectureDiagram
+          variant="simple"
           highlightIds={activeIds}
           callout={lang === 'ko' ? '각 영역을 클릭해보세요' : 'Click each area to explore'}
-          horizontal
         />
       </div>
     </div>
