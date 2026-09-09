@@ -4,7 +4,15 @@ import { CO_SCHEMA } from './coSchema'
 
 export { HR_SCHEMA } from './hrSchema'
 export { CO_SCHEMA } from './coSchema'
-export type { Schema, SchemaTable, ColumnDef, ForeignKey, RowData } from './types'
+export type {
+  Schema,
+  SchemaTable,
+  ColumnDef,
+  ForeignKey,
+  RowData,
+} from './types'
+export { EMPLOYEES, EMPLOYEE_COLUMNS, employeeCell } from './hr'
+export type { Employee } from './hr'
 export {
   getLargeDataset,
   getLargeTable,
@@ -13,7 +21,11 @@ export {
   recommendIndexType,
   generateLargeDataset,
 } from './largeDataGenerator'
-export type { LargeDataset, LargeTable, LargeColumn } from './largeDataGenerator'
+export type {
+  LargeDataset,
+  LargeTable,
+  LargeColumn,
+} from './largeDataGenerator'
 
 export const SCHEMAS: Schema[] = [
   {

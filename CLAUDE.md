@@ -131,12 +131,16 @@ Oracle CBO를 모방한 순수 TypeScript 구현:
 ### 데이터 스키마 (`src/data/`)
 
 - `types.ts` — 공유 TypeScript 인터페이스: `SchemaTable`, `Schema`, `ColumnDef`, `ForeignKey`, `RowData`
-- `hrSchema.ts` — HR 스키마 7개 테이블 + 샘플 데이터
+- `hrSchema.ts` — HR 스키마 7개 테이블 + 샘플 데이터 (원본 스키마)
 - `coSchema.ts` — CO(Customer Orders) 스키마 5개 테이블 + 샘플 데이터
+- `hr.ts` — **쿼리 예시용 EMPLOYEES 데이터셋.** `hrSchema.ts` 에서 1회 파생. 챕터에서 쿼리문 예시를 보여줄 때 쓰는 공용 `Employee` 타입(7필드 축약 뷰), `EMPLOYEES` 배열, `EMPLOYEE_COLUMNS`(컬럼 순서 단일 기준), `employeeCell(emp, col)` 헬퍼(셀 값 → 문자열, NULL 처리). **각 섹션이 데이터 타입·컬럼 배열을 매번 새로 정의하지 말고 여기서 import.** 서브셋이 필요하면 `Pick<Employee, ...>`.
 - `largeDataGenerator.ts` — 대용량 가상 데이터 생성기 (Mulberry32 PRNG, 시드 기반). 모듈 import 시 1회 생성 후 캐시됨
-- `index.ts` — 배럴 파일. `SCHEMAS`, `SAMPLE_QUERIES`, 두 스키마, `largeDataGenerator`를 re-export
+- `index.ts` — 배럴 파일. `SCHEMAS`, `SAMPLE_QUERIES`, 두 스키마, `EMPLOYEES`/`Employee`/`EMPLOYEE_COLUMNS`/`employeeCell`(from `hr.ts`), `largeDataGenerator`를 re-export
 
-`src/book/chapters/sql-basics/dml-more/shared.ts`는 `sql-basics` 챕터 전용 공유 헬퍼: `Employee` / `ExampleQuery` / `ExecStep` 인터페이스, `EMPLOYEES` 샘플 데이터, 순수 유틸 함수.
+**sql-basics `dml-more/` 공유 모듈** (구 `shared.ts` 를 역할별로 분리):
+- `sqlEngine.ts` — 예시 쿼리 문자열을 파싱해 `EMPLOYEES` 위에서 흉내 실행하는 순수 유틸(`parseAndExecute`, WHERE/ORDER/GROUP 평가, `ParsedQuery`/`GroupRow` 타입). `ExecutionSection`·`MiniSimulator` 공유.
+- `clauseDemos.ts` — SQL 절 구문 데모 데이터(`CLAUSE_DEMOS`, `ClauseDemo`/`ClauseVariant` 타입, `CLAUSE_COLOR`). `commands/DMLSection`·`dml-more/ClausesSection` 공유.
+- `executionQueries.ts` — `ExecutionSection` **전용** 데이터: `EXAMPLE_QUERIES`, 실행 단계(`*_STEPS`), `STEP_COLOR`, `ExampleQuery`/`ExecStep` 타입.
 
 ### 용어 사전 (`src/data/glossary.ts`, `src/book/GlossaryPanel.tsx`)
 
@@ -184,7 +188,12 @@ const T = {
 **`WipBanner`** — 미완성 섹션 최상단에 배치. 현재 `BitmapSection`, `CompositeSection`에 적용 중.
 
 **Internals 챕터 특이사항:**
-- `overview/sga/shared/SgaPositionDiagram.tsx`의 `SgaPositionDiagram`을 SGA 하위 4개 페이지가 공유 (`activeId: SgaComponentId` prop)
+- **`shared/OracleArchitectureDiagram.tsx` — Oracle 내부 구조 다이어그램의 공통 컴포넌트.** 프로그램 전체에서 이걸 쓴다. Instance 안에 SGA·PGA·Background Processes 가 올바르게 중첩되고(공식 "Database Instance" 그림), Server Process ↔ 메모리 영역 접근 관계(owns PGA / reads·writes SGA)까지 표현한다. `variant` prop 으로 두 모드:
+  - `variant="simple"` — 이름표만. 각 영역이 클릭 이벤트를 받는다 (`onSelect(id: ArchComponentId)` 콜백 또는 부모의 `data-arch-id` 위임). **클릭 시 동작은 각 페이지가 정의한다** (예: `OverviewSection` 은 클릭 시 아래에 해설 카드를 띄움).
+  - `variant="detail"` — 각 영역에 한 줄 설명이 인라인으로 들어감. 클릭 없음(비인터랙티브).
+  - 기타 props: `highlightIds`(영역+자식 강조, 나머지 dim — 단계 애니메이션용), `hideClient`, `hideDatabase`, `callout`
+- 기존 `OracleInstanceMap.tsx` 는 그대로 유지 — buffer-cache DBWn 플로우·`SgaPositionDiagram`·`MapPanel(shared.tsx)` 이 아직 쓴다. 새 코드에서 Oracle 인스턴스 전체 구조를 그릴 땐 `OracleArchitectureDiagram` 을 쓸 것.
+- `overview/sga/shared/SgaPositionDiagram.tsx`의 `SgaPositionDiagram`을 SGA 하위 4개 페이지가 공유 (`activeId: SgaComponentId` prop) — 내부적으로 `OracleMemoryDiagram(scope="sga")` 래퍼
 - `StorageSection.tsx`: 각 계층(Block·Extent·Segment·Tablespace)은 `AccordionSection` 안에 전용 Diagram 컴포넌트 + `Prose` + `Table` 구조
 
 **Index 챕터 특이사항:**
@@ -236,7 +245,9 @@ const T = {
 | `SimulatorPlaceholder` | 시뮬레이터 예정 자리 | `label`, `color` prop |
 | `TermPopup` | 인라인 용어 팝업 | 클릭 시 말풍선. `open`/`onOpen`/`onClose` state 필요 |
 
-`OracleInstanceMap` (`src/book/chapters/internals/shared/OracleInstanceMap.tsx`) — Internals 챕터 전용. props: `highlightIds: InstanceComponentId[]`, `hideClient?`, `horizontal?`, `callout?`
+`OracleArchitectureDiagram` (`src/book/chapters/internals/shared/OracleArchitectureDiagram.tsx`) — **Oracle 인스턴스 내부 구조 다이어그램의 공통 컴포넌트** (프로그램 전체 공용). `variant="simple"`(이름표+클릭 이벤트) / `variant="detail"`(영역별 인라인 설명, 클릭 없음). props: `variant`, `onSelect?`, `highlightIds?: ArchComponentId[]`, `hideClient?`, `hideDatabase?`, `callout?`. 자세한 설명은 위 "Internals 챕터 특이사항" 참고.
+
+`OracleInstanceMap` (`src/book/chapters/internals/shared/OracleInstanceMap.tsx`) — **레거시**. Internals 챕터 전용, 좁은 사이드바·DBWn 애니메이션 용도로만 잔존. props: `highlightIds: InstanceComponentId[]`, `hideClient?`, `horizontal?`, `callout?`. 새 코드는 `OracleArchitectureDiagram` 사용.
 
 #### InfoBox variant 선택 기준
 

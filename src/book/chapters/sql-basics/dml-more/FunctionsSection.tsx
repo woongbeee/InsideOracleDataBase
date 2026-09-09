@@ -18,7 +18,7 @@ interface FuncItem {
   name: string
   signature: string
   desc: { ko: string; en: string }
-example: string
+  example: string
   tables: ResultTable
   note?: { ko: string; en: string }
 }
@@ -26,14 +26,14 @@ example: string
 // ── Sample data ─────────────────────────────────────────────────────────────
 
 const EMP_ROWS: (string | null)[][] = [
-  ['101', 'Alice',  '10', '7200', 'null'],
-  ['102', 'Bob',    '20', '5400', '101' ],
-  ['103', 'Carol',  '10', '8100', '101' ],
-  ['104', 'David',  '30', '4900', '102' ],
-  ['105', 'Eva',    '20', '6300', '101' ],
-  ['106', 'Frank',  '30', '3800', '102' ],
-  ['107', 'Grace',  '10', '9500', 'null'],
-  ['108', 'Henry',  '20', '5900', '101' ],
+  ['101', 'Alice', '10', '7200', 'null'],
+  ['102', 'Bob', '20', '5400', '101'],
+  ['103', 'Carol', '10', '8100', '101'],
+  ['104', 'David', '30', '4900', '102'],
+  ['105', 'Eva', '20', '6300', '101'],
+  ['106', 'Frank', '30', '3800', '102'],
+  ['107', 'Grace', '10', '9500', 'null'],
+  ['108', 'Henry', '20', '5900', '101'],
 ]
 
 // ── Data ───────────────────────────────────────────────────────────────────
@@ -78,9 +78,13 @@ const FUNC_ITEMS: FuncItem[] = [
       resultHeaders: ['first_name', 'dept_id', 'dept_label'],
       resultRows: EMP_ROWS.map((r) => {
         const label =
-          r[2] === '10' ? 'Engineering' :
-          r[2] === '20' ? 'Analytics'   :
-          r[2] === '30' ? 'Support'      : 'Other'
+          r[2] === '10'
+            ? 'Engineering'
+            : r[2] === '20'
+              ? 'Analytics'
+              : r[2] === '30'
+                ? 'Support'
+                : 'Other'
         return [r[1], r[2], label]
       }),
     },
@@ -102,7 +106,11 @@ const FUNC_ITEMS: FuncItem[] = [
       sourceHeaders: ['first_name', 'manager_id'],
       sourceRows: EMP_ROWS.map((r) => [r[1], r[4]]),
       resultHeaders: ['first_name', 'manager_id', 'mgr'],
-      resultRows: EMP_ROWS.map((r) => [r[1], r[4], r[4] === 'null' ? '0' : r[4]]),
+      resultRows: EMP_ROWS.map((r) => [
+        r[1],
+        r[4],
+        r[4] === 'null' ? '0' : r[4],
+      ]),
     },
     note: {
       ko: 'expr과 replacement의 데이터 타입이 같아야 합니다. 타입이 다르면 Oracle이 암묵적으로 변환하거나 오류가 발생할 수 있습니다.',
@@ -122,7 +130,11 @@ const FUNC_ITEMS: FuncItem[] = [
       sourceHeaders: ['first_name', 'manager_id'],
       sourceRows: EMP_ROWS.map((r) => [r[1], r[4]]),
       resultHeaders: ['first_name', 'manager_id', 'role'],
-      resultRows: EMP_ROWS.map((r) => [r[1], r[4], r[4] === 'null' ? 'Leader' : 'Member']),
+      resultRows: EMP_ROWS.map((r) => [
+        r[1],
+        r[4],
+        r[4] === 'null' ? 'Leader' : 'Member',
+      ]),
     },
     note: {
       ko: 'NVL2는 Oracle 전용 함수입니다. 표준 SQL에서는 CASE WHEN expr IS NULL THEN … ELSE … END로 동일하게 표현할 수 있습니다.',
@@ -131,20 +143,29 @@ const FUNC_ITEMS: FuncItem[] = [
   },
 ]
 
-const C = { bg: 'bg-rail', border: 'border-line', text: 'text-ink/80', active: 'bg-blue/10 text-blue', code: 'bg-rail border-line' }
+const C = {
+  bg: 'bg-rail',
+  border: 'border-line',
+  text: 'text-ink/80',
+  active: 'bg-blue/10 text-blue',
+}
 
 // ── MiniTable ───────────────────────────────────────────────────────────────
 
-function MiniTable({ headers, rows, highlightLast }: {
+function MiniTable({
+  headers,
+  rows,
+  highlightLast,
+}: {
   headers: string[]
   rows: (string | null)[][]
   highlightLast?: boolean
 }) {
   return (
-    <div className="overflow-hidden rounded-card border text-xs">
+    <div className="rounded-card overflow-hidden border text-xs">
       <table className="w-full">
         <thead>
-          <tr className="border-b bg-rail">
+          <tr className="bg-rail border-b">
             {headers.map((h, i) => (
               <th
                 key={h}
@@ -152,7 +173,7 @@ function MiniTable({ headers, rows, highlightLast }: {
                   'px-2.5 py-1.5 text-left font-mono text-[10px] font-bold',
                   highlightLast && i === headers.length - 1
                     ? 'text-blue'
-                    : 'text-ink-2',
+                    : 'text-ink-2'
                 )}
               >
                 {h}
@@ -171,9 +192,11 @@ function MiniTable({ headers, rows, highlightLast }: {
                     key={ci}
                     className={cn(
                       'px-2.5 py-1 font-mono text-[11px]',
-                      isNull       ? 'italic text-ink-2/40' :
-                      isHighlight  ? 'font-bold text-blue'      :
-                                     'text-ink/80',
+                      isNull
+                        ? 'text-ink-2/40 italic'
+                        : isHighlight
+                          ? 'text-blue font-bold'
+                          : 'text-ink/80'
                     )}
                   >
                     {isNull ? 'NULL' : cell}
@@ -199,7 +222,6 @@ export function FunctionsSection() {
     <PageContainer>
       <ChapterTitle
         icon="📋"
-       
         title={lang === 'ko' ? 'Oracle 주요 함수' : 'Oracle Key Functions'}
         subtitle={
           lang === 'ko'
@@ -210,7 +232,7 @@ export function FunctionsSection() {
 
       <div className="grid grid-cols-[160px_1fr] items-start gap-4">
         {/* LEFT: 함수 목록 */}
-        <div className="flex flex-col gap-1 rounded-panel border bg-rail p-2">
+        <div className="rounded-panel bg-rail flex flex-col gap-1 border p-2">
           {FUNC_ITEMS.map((f) => {
             const isActive = f.name === openItem
             return (
@@ -219,7 +241,7 @@ export function FunctionsSection() {
                 onClick={() => setOpenItem(f.name)}
                 className={cn(
                   'rounded-card px-3 py-2 text-left font-mono text-xs font-bold transition-all',
-                  isActive ? C.active : 'text-ink-2 hover:bg-rail',
+                  isActive ? C.active : 'text-ink-2 hover:bg-rail'
                 )}
               >
                 {f.name}
@@ -239,34 +261,46 @@ export function FunctionsSection() {
             className="flex flex-col gap-4"
           >
             {/* 헤더 */}
-            <div className={cn('rounded-panel border px-4 py-3', C.bg, C.border, C.text)}>
-              <div className="mb-1 font-mono text-[10px] font-bold uppercase tracking-wider opacity-60">
-                {lang === 'ko' ? '조건 / NULL 처리 함수' : 'Conditional / NULL Functions'}
+            <div
+              className={cn(
+                'rounded-panel border px-4 py-3',
+                C.bg,
+                C.border,
+                C.text
+              )}
+            >
+              <div className="mb-1 font-mono text-[10px] font-bold tracking-wider uppercase opacity-60">
+                {lang === 'ko'
+                  ? '조건 / NULL 처리 함수'
+                  : 'Conditional / NULL Functions'}
               </div>
               <div className="font-mono text-xl font-black">{item.name}</div>
-              <div className={cn('mt-1.5 inline-block rounded border px-2 py-0.5 font-mono text-[11px]', C.active)}>
+              <div
+                className={cn(
+                  'mt-1.5 inline-block rounded border px-2 py-0.5 font-mono text-[11px]',
+                  C.active
+                )}
+              >
                 {item.signature}
               </div>
             </div>
 
             {/* 설명 */}
-            <div className="rounded-panel border bg-paper px-4 py-3">
+            <div className="rounded-panel bg-paper border px-4 py-3">
               <Prose>{item.desc[lang]}</Prose>
             </div>
 
             {/* 예시 쿼리 */}
             <div>
-              <p className="mb-1.5 font-mono text-[11px] font-bold uppercase tracking-wider text-ink-2">
+              <p className="text-ink-2 mb-1.5 font-mono text-[11px] font-bold tracking-wider uppercase">
                 {lang === 'ko' ? '예시 쿼리' : 'Example Query'}
               </p>
-              <div className={cn('rounded-panel border px-4 py-3', C.code)}>
-                <SqlHighlight sql={item.example} />
-              </div>
+              <SqlHighlight sql={item.example} />
             </div>
 
             {/* 실행 결과 */}
             <div>
-              <p className="mb-2 font-mono text-[11px] font-bold uppercase tracking-wider text-ink-2">
+              <p className="text-ink-2 mb-2 font-mono text-[11px] font-bold tracking-wider uppercase">
                 {lang === 'ko' ? '실행 결과' : 'Result'}
               </p>
               <MiniTable
@@ -280,8 +314,16 @@ export function FunctionsSection() {
             {item.note && (
               <>
                 <Divider />
-                <div className={cn('rounded-panel border px-4 py-3 text-xs leading-relaxed', C.bg, C.border, C.text)}>
-                  <span className="mr-1.5 font-bold">💡</span>{item.note[lang]}
+                <div
+                  className={cn(
+                    'rounded-panel border px-4 py-3 text-xs leading-relaxed',
+                    C.bg,
+                    C.border,
+                    C.text
+                  )}
+                >
+                  <span className="mr-1.5 font-bold">💡</span>
+                  {item.note[lang]}
                 </div>
               </>
             )}

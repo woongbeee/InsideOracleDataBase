@@ -1,13 +1,20 @@
 import {
-  PageContainer, ChapterTitle,
-  Prose, InfoBox, AccordionSection,
+  PageContainer,
+  ChapterTitle,
+  Prose,
+  InfoBox,
+  AccordionSection,
 } from '../../shared'
 import { useSimulationStore } from '@/store/simulationStore'
 import {
-  IconEdit, IconTable, IconFilter, IconTrash, IconPlayerPlay,
+  IconEdit,
+  IconTable,
+  IconFilter,
+  IconTrash,
+  IconPlayerPlay,
 } from '@tabler/icons-react'
 import { cn } from '@/lib/utils'
-import { CLAUSE_COLOR, CLAUSE_DEMOS } from '../dml-more/shared'
+import { CLAUSE_COLOR, CLAUSE_DEMOS } from '../dml-more/clauseDemos'
 import { ClickableSyntaxRow, SyntaxRow } from '../dml-more/MiniSimulator'
 
 const T = {
@@ -20,7 +27,9 @@ const T = {
       {
         kw: 'SELECT',
         color: 'blue',
-        icon: <IconPlayerPlay size={16} color="var(--color-blue)" stroke={1.5} />,
+        icon: (
+          <IconPlayerPlay size={16} color="var(--color-blue)" stroke={1.5} />
+        ),
         title: '컬럼 선택',
         desc: '조회할 컬럼명을 적어요. 여러 컬럼을 적을 때는 쉼표로 연결하고, *를 쓰면 전체 컬럼을 조회해요.',
       },
@@ -64,7 +73,10 @@ const T = {
     distinctOps: [
       ['구문', '설명'],
       ['SELECT DISTINCT col', 'col 값이 같은 행을 중복으로 처리해요'],
-      ['SELECT DISTINCT col1, col2', 'col1과 col2 두 값이 모두 같은 행을 중복으로 처리해요'],
+      [
+        'SELECT DISTINCT col1, col2',
+        'col1과 col2 두 값이 모두 같은 행을 중복으로 처리해요',
+      ],
     ],
     whereTitle: 'WHERE — 행 필터링',
     whereDesc:
@@ -74,8 +86,16 @@ const T = {
       ['=', '같음', 'dept_id = 10'],
       ['!= / <>', '같지 않음', 'dept_id != 10'],
       ['> / >= / < / <=', '크기 비교', 'salary >= 7000'],
-      ['BETWEEN a AND b', '범위 설정 (a 이상 b 이하)', 'salary BETWEEN 5000 AND 7500'],
-      ['NOT BETWEEN a AND b', 'BETWEEN 범위 밖', 'salary NOT BETWEEN 5000 AND 7500'],
+      [
+        'BETWEEN a AND b',
+        '범위 설정 (a 이상 b 이하)',
+        'salary BETWEEN 5000 AND 7500',
+      ],
+      [
+        'NOT BETWEEN a AND b',
+        'BETWEEN 범위 밖',
+        'salary NOT BETWEEN 5000 AND 7500',
+      ],
       ['LIKE', '패턴 매칭 (% : 임의 문자)', "last_name LIKE 'K%'"],
       ['IN (a, b, …)', '목록 중 하나', 'dept_id IN (10, 20)'],
       ['IS NULL / IS NOT NULL', 'NULL 여부 확인', 'manager_id IS NULL'],
@@ -104,7 +124,9 @@ const T = {
       {
         kw: 'SELECT',
         color: 'blue',
-        icon: <IconPlayerPlay size={16} color="var(--color-blue)" stroke={1.5} />,
+        icon: (
+          <IconPlayerPlay size={16} color="var(--color-blue)" stroke={1.5} />
+        ),
         title: 'Column Selection',
         desc: 'Write the column names to retrieve. Separate multiple columns with commas. * retrieves all columns.',
       },
@@ -147,7 +169,10 @@ const T = {
       'DISTINCT triggers a Sort or Hash operation over the entire result set, which can be costly on large tables. Use it only when necessary, and reduce rows with WHERE first.',
     distinctOps: [
       ['Syntax', 'Description'],
-      ['SELECT DISTINCT col', 'Rows with the same col value are treated as duplicates'],
+      [
+        'SELECT DISTINCT col',
+        'Rows with the same col value are treated as duplicates',
+      ],
       [
         'SELECT DISTINCT col1, col2',
         'Rows where both col1 and col2 are identical are treated as duplicates',
@@ -161,13 +186,29 @@ const T = {
       ['=', 'Equal', 'dept_id = 10'],
       ['!= / <>', 'Not equal', 'dept_id != 10'],
       ['> / >= / < / <=', 'Comparison', 'salary >= 7000'],
-      ['BETWEEN a AND b', 'Range (a to b inclusive)', 'salary BETWEEN 5000 AND 7500'],
-      ['NOT BETWEEN a AND b', 'Outside the BETWEEN range', 'salary NOT BETWEEN 5000 AND 7500'],
+      [
+        'BETWEEN a AND b',
+        'Range (a to b inclusive)',
+        'salary BETWEEN 5000 AND 7500',
+      ],
+      [
+        'NOT BETWEEN a AND b',
+        'Outside the BETWEEN range',
+        'salary NOT BETWEEN 5000 AND 7500',
+      ],
       ['LIKE', 'Pattern match (% = wildcard)', "last_name LIKE 'K%'"],
       ['IN (a, b, …)', 'Value in list', 'dept_id IN (10, 20)'],
       ['IS NULL / IS NOT NULL', 'NULL check', 'manager_id IS NULL'],
-      ['AND', 'All listed conditions are true', 'dept_id = 20 AND salary >= 5500'],
-      ['OR', 'At least one listed condition is true', 'dept_id = 10 OR dept_id = 30'],
+      [
+        'AND',
+        'All listed conditions are true',
+        'dept_id = 20 AND salary >= 5500',
+      ],
+      [
+        'OR',
+        'At least one listed condition is true',
+        'dept_id = 10 OR dept_id = 30',
+      ],
     ],
     whereNullTip:
       "What is NULL? — NULL represents the absence of a value. It is not the same as 0 or an empty string (''). Any comparison with NULL evaluates to UNKNOWN, so = NULL and != NULL do not work. Always use IS NULL / IS NOT NULL to check for NULL.",
@@ -187,16 +228,20 @@ const T = {
 export function DMLSection() {
   const lang = useSimulationStore((s) => s.lang)
   const t = T[lang]
-  const introDemo    = CLAUSE_DEMOS.find((d) => d.sectionKey === 'intro')!
-  const selectDemo   = CLAUSE_DEMOS.find((d) => d.sectionKey === 'select')!
+  const introDemo = CLAUSE_DEMOS.find((d) => d.sectionKey === 'intro')!
+  const selectDemo = CLAUSE_DEMOS.find((d) => d.sectionKey === 'select')!
   const distinctDemo = CLAUSE_DEMOS.find((d) => d.sectionKey === 'distinct')!
-  const whereDemo    = CLAUSE_DEMOS.find((d) => d.sectionKey === 'where')!
-  const updateDemo   = CLAUSE_DEMOS.find((d) => d.sectionKey === 'update')!
-  const deleteDemo   = CLAUSE_DEMOS.find((d) => d.sectionKey === 'delete')!
+  const whereDemo = CLAUSE_DEMOS.find((d) => d.sectionKey === 'where')!
+  const updateDemo = CLAUSE_DEMOS.find((d) => d.sectionKey === 'update')!
+  const deleteDemo = CLAUSE_DEMOS.find((d) => d.sectionKey === 'delete')!
 
   return (
     <PageContainer className="max-w-6xl">
-      <ChapterTitle icon={<IconEdit size={36} color="var(--color-blue)" stroke={1.5} />} title={t.chapterTitle} subtitle={t.chapterSubtitle} />
+      <ChapterTitle
+        icon={<IconEdit size={36} color="var(--color-blue)" stroke={1.5} />}
+        title={t.chapterTitle}
+        subtitle={t.chapterSubtitle}
+      />
 
       {/* ── Intro: clause overview ── */}
       <SyntaxRow
@@ -205,13 +250,23 @@ export function DMLSection() {
           <>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {t.clauses.map((c) => (
-                <div key={c.kw} className={cn('rounded-card border p-3', CLAUSE_COLOR[c.color])}>
+                <div
+                  key={c.kw}
+                  className={cn(
+                    'rounded-card border p-3',
+                    CLAUSE_COLOR[c.color]
+                  )}
+                >
                   <div className="mb-1.5 flex items-center gap-2">
                     <span className="text-base">{c.icon}</span>
-                    <code className="rounded bg-current/10 px-1.5 py-0.5 font-mono text-xs font-bold">{c.kw}</code>
+                    <code className="rounded bg-current/10 px-1.5 py-0.5 font-mono text-xs font-bold">
+                      {c.kw}
+                    </code>
                   </div>
                   <div className="mb-0.5 text-xs font-bold">{c.title}</div>
-                  <div className="text-xs leading-relaxed opacity-80">{c.desc}</div>
+                  <div className="text-xs leading-relaxed opacity-80">
+                    {c.desc}
+                  </div>
                 </div>
               ))}
             </div>
@@ -219,15 +274,10 @@ export function DMLSection() {
         }
       />
 
-
       {/* ── SELECT ── */}
       <AccordionSection title={t.selectTitle} defaultOpen>
-        <SyntaxRow
-          demo={selectDemo}
-          left={<Prose>{t.selectDesc}</Prose>}
-        />
+        <SyntaxRow demo={selectDemo} left={<Prose>{t.selectDesc}</Prose>} />
       </AccordionSection>
-
 
       {/* ── DISTINCT ── */}
       <AccordionSection title={t.distinctTitle}>
@@ -236,14 +286,9 @@ export function DMLSection() {
           header={t.distinctOps[0]}
           rows={t.distinctOps.slice(1)}
           topContent={<Prose>{t.distinctDesc}</Prose>}
-          bottomContent={
-            <InfoBox variant="tip">
-              {t.distinctTip}
-            </InfoBox>
-          }
+          bottomContent={<InfoBox variant="tip">{t.distinctTip}</InfoBox>}
         />
       </AccordionSection>
-
 
       {/* ── WHERE ── */}
       <AccordionSection title={t.whereTitle}>
@@ -252,11 +297,7 @@ export function DMLSection() {
           header={t.whereOps[0]}
           rows={t.whereOps.slice(1)}
           topContent={<Prose>{t.whereDesc}</Prose>}
-          bottomContent={
-            <InfoBox variant="note">
-              {t.whereNullTip}
-            </InfoBox>
-          }
+          bottomContent={<InfoBox variant="note">{t.whereNullTip}</InfoBox>}
         />
       </AccordionSection>
 
@@ -267,9 +308,7 @@ export function DMLSection() {
           left={
             <>
               <Prose>{t.updateDesc}</Prose>
-              <InfoBox variant="warning">
-                {t.updateWarning}
-              </InfoBox>
+              <InfoBox variant="warning">{t.updateWarning}</InfoBox>
             </>
           }
         />
@@ -292,4 +331,3 @@ export function DMLSection() {
     </PageContainer>
   )
 }
-

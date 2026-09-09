@@ -30,69 +30,74 @@
   color-scheme: light;
 
   /* shadcn standard variables — neutral / clean black-white */
-  --background:        0 0% 98%;       /* #fafafa */
-  --foreground:        0 0% 7%;        /* #111111 */
-  --card:              0 0% 100%;
-  --card-foreground:   0 0% 7%;
-  --popover:           0 0% 100%;
-  --popover-foreground:0 0% 7%;
-  --primary:           0 0% 9%;        /* near black */
-  --primary-foreground:0 0% 98%;
-  --secondary:         0 0% 96%;
-  --secondary-foreground:0 0% 9%;
-  --muted:             0 0% 94%;
-  --muted-foreground:  0 0% 44%;
-  --accent:            0 0% 94%;
+  --background: 0 0% 98%; /* #fafafa */
+  --foreground: 0 0% 7%; /* #111111 */
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 7%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 7%;
+  --primary: 0 0% 9%; /* near black */
+  --primary-foreground: 0 0% 98%;
+  --secondary: 0 0% 96%;
+  --secondary-foreground: 0 0% 9%;
+  --muted: 0 0% 94%;
+  --muted-foreground: 0 0% 44%;
+  --accent: 0 0% 94%;
   --accent-foreground: 0 0% 9%;
-  --destructive:       0 84% 60%;
-  --destructive-foreground:0 0% 98%;
-  --border:            0 0% 88%;
-  --input:             0 0% 88%;
-  --ring:              0 0% 9%;
-  --radius:            0.5rem;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 0 0% 88%;
+  --input: 0 0% 88%;
+  --ring: 0 0% 9%;
+  --radius: 0.5rem;
 
   /* Semantic status colors (used sparingly for simulation states) */
-  --active-border:     220 90% 45%;   /* blue — active component */
-  --active-bg:         220 90% 97%;
-  --active-text:       220 90% 35%;
-  --warn-border:       28 90% 50%;    /* orange — miss / IO */
-  --warn-bg:           28 90% 97%;
-  --warn-text:         28 90% 38%;
-  --ok-border:         142 70% 40%;   /* green — hit */
-  --ok-bg:             142 70% 96%;
-  --ok-text:           142 70% 28%;
+  --active-border: 220 90% 45%; /* blue — active component */
+  --active-bg: 220 90% 97%;
+  --active-text: 220 90% 35%;
+  --warn-border: 28 90% 50%; /* orange — miss / IO */
+  --warn-bg: 28 90% 97%;
+  --warn-text: 28 90% 38%;
+  --ok-border: 142 70% 40%; /* green — hit */
+  --ok-bg: 142 70% 96%;
+  --ok-text: 142 70% 28%;
 
   /* legacy aliases — kept for gradual migration */
-  --bg-base:    hsl(var(--background));
+  --bg-base: hsl(var(--background));
   --bg-surface: hsl(var(--card));
-  --bg-raised:  hsl(var(--secondary));
+  --bg-raised: hsl(var(--secondary));
   --bg-overlay: hsl(var(--muted));
   --border-subtle: hsl(var(--border));
-  --border-mid:    hsl(0 0% 78%);
+  --border-mid: hsl(0 0% 78%);
   --border-bright: hsl(0 0% 44%);
-  --text-primary:   hsl(var(--foreground));
+  --text-primary: hsl(var(--foreground));
   --text-secondary: hsl(0 0% 22%);
-  --text-muted:     hsl(var(--muted-foreground));
+  --text-muted: hsl(var(--muted-foreground));
   --sapphire-bright: hsl(var(--active-border));
-  --sapphire-mid:    hsl(220 90% 25%);
-  --sapphire-soft:   hsl(220 70% 65%);
+  --sapphire-mid: hsl(220 90% 25%);
+  --sapphire-soft: hsl(220 70% 65%);
   --tangerine: hsl(var(--warn-border));
-  --gold:      hsl(42 90% 50%);
-  --gold-light:hsl(42 80% 80%);
+  --gold: hsl(42 90% 50%);
+  --gold-light: hsl(42 80% 80%);
 
   /* ── 타이포 — 언어당 스왑 포인트 한 곳 ──
      UI/제목/라벨: KO=Noto Sans KR, EN=Inter.
      장문 본문(prose): KO=Noto Sans KR, EN=Newsreader 세리프 (장문 읽기).
      코드·수치·표·뱃지: JetBrains Mono.
      App.tsx가 <html lang>을 useLangStore와 동기화 → :lang(en)에서 자동 스왑. */
-  --font-ui-ko:   'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --font-ui-en:   'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-ui-ko:
+    'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-ui-en:
+    'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-read-ko: 'Noto Sans KR', system-ui, -apple-system, sans-serif;
   --font-read-en: 'Newsreader', Georgia, 'Times New Roman', serif;
 
-  --font-sans-active: var(--font-ui-ko);      /* index.css body 가 참조 — 이름 유지 */
+  --font-sans-active: var(
+    --font-ui-ko
+  ); /* index.css body 가 참조 — 이름 유지 */
   --font-read-active: var(--font-read-ko);
-  --font-mono-stack: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --font-mono-stack:
+    'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
 :root:lang(en) {
@@ -106,46 +111,46 @@
    ───────────────────────────────────────────────────────────────────────────── */
 @theme {
   /* ── 2a. iOS highlight palette — 현행. InfoBox/ConceptGrid 등이 참조 중 (값 불변) ── */
-  --color-ios-blue:        #0A84FF;
-  --color-ios-blue-light:  #e8f3ff;
-  --color-ios-blue-dark:   #004999;
+  --color-ios-blue: #0a84ff;
+  --color-ios-blue-light: #e8f3ff;
+  --color-ios-blue-dark: #004999;
 
-  --color-ios-teal:        #32ADE6;
-  --color-ios-teal-light:  #e5f5fc;
-  --color-ios-teal-dark:   #0a5c80;
+  --color-ios-teal: #32ade6;
+  --color-ios-teal-light: #e5f5fc;
+  --color-ios-teal-dark: #0a5c80;
 
-  --color-ios-orange:      #FF9F0A;
-  --color-ios-orange-light:#fff3e0;
+  --color-ios-orange: #ff9f0a;
+  --color-ios-orange-light: #fff3e0;
   --color-ios-orange-dark: #7a4500;
 
-  --color-ios-red:         #FF453A;
-  --color-ios-red-light:   #fff0ee;
-  --color-ios-red-dark:    #8a0f08;
+  --color-ios-red: #ff453a;
+  --color-ios-red-light: #fff0ee;
+  --color-ios-red-dark: #8a0f08;
 
-  --color-ios-green:       #30D158;
+  --color-ios-green: #30d158;
   --color-ios-green-light: #e6f9ed;
-  --color-ios-green-dark:  #0a5c22;
+  --color-ios-green-dark: #0a5c22;
 
   /* ── 2b. Brand — 챕터 식별 색. 현행. bookStructure.tsx / theme.tsx ACCENT_COLORS 참조 (값 불변) ── */
-  --color-brand-pink:         #B5486B;
-  --color-brand-pink-light:   #FBEFF2;
-  --color-brand-pink-dark:    #7A2E45;
+  --color-brand-pink: #b5486b;
+  --color-brand-pink-light: #fbeff2;
+  --color-brand-pink-dark: #7a2e45;
 
-  --color-brand-navy:         #2C4A6E;
-  --color-brand-navy-light:   #EEF3F8;
-  --color-brand-navy-dark:    #1B3049;
+  --color-brand-navy: #2c4a6e;
+  --color-brand-navy-light: #eef3f8;
+  --color-brand-navy-dark: #1b3049;
 
-  --color-brand-teal:         #2F7A6B;
-  --color-brand-teal-light:   #EAF5F2;
-  --color-brand-teal-dark:    #1E4F45;
+  --color-brand-teal: #2f7a6b;
+  --color-brand-teal-light: #eaf5f2;
+  --color-brand-teal-dark: #1e4f45;
 
-  --color-brand-orange:       #C1652E;
-  --color-brand-orange-light: #FBF0E7;
-  --color-brand-orange-dark:  #7A3F1B;
+  --color-brand-orange: #c1652e;
+  --color-brand-orange-light: #fbf0e7;
+  --color-brand-orange-dark: #7a3f1b;
 
-  --color-brand-salmon:       #C97A63;
-  --color-brand-salmon-light: #FBEFEA;
-  --color-brand-salmon-dark:  #7D4B3B;
+  --color-brand-salmon: #c97a63;
+  --color-brand-salmon-light: #fbefea;
+  --color-brand-salmon-dark: #7d4b3b;
 
   /* ═══════════════════════════════════════════════════════════════════════════
      2c. Notion 스타일 디자인 시스템  (라이트 기본. 다크 = §3 [data-theme="dark"])
@@ -153,55 +158,62 @@
      ═══════════════════════════════════════════════════════════════════════════ */
 
   /* 서피스 — 웜 뉴트럴 */
-  --color-paper:      #ffffff;   /* 카드·패널 바탕 */
-  --color-paper-sunk: #fbfbfa;   /* 페이지 바탕 · 아주 옅은 함몰면 */
-  --color-rail:       #f7f6f3;   /* 사이드바 · 코드블록 · 표 헤더 = 무채색 셸 면 */
+  --color-paper: #ffffff; /* 카드·패널 바탕 */
+  --color-paper-sunk: #fbfbfa; /* 페이지 바탕 · 아주 옅은 함몰면 */
+  --color-rail: #f7f6f3; /* 사이드바 · 코드블록 · 표 헤더 = 무채색 셸 면 */
 
   /* 잉크 — 웜 니어블랙 */
-  --color-ink:   #2f2e2b;   /* 본문 · 제목 */
-  --color-ink-2: #6f6e6a;   /* 보조 설명 · 캡션 */
-  --color-ink-3: #78776f;   /* 메타 · 라벨 · 비활성 */
+  --color-ink: #2f2e2b; /* 본문 · 제목 */
+  --color-ink-2: #6f6e6a; /* 보조 설명 · 캡션 */
+  --color-ink-3: #78776f; /* 메타 · 라벨 · 비활성 */
 
   /* 라인 — 헤어라인 */
-  --color-line:   #eae9e5;
-  --color-line-2: #dddcd6;   /* 강한 구분 */
+  --color-line: #eae9e5;
+  --color-line-2: #dddcd6; /* 강한 구분 */
 
   /* 콘텐츠 색 — 채도 높은 확정색. 텍스트 · 3px 좌측선 · 솔리드 칩 · 문법 강조에만.
      파스텔 채움 금지 (콜아웃은 배경 없이 좌측선 + 라벨 색으로만). */
-  --color-blue:   #2166d6;   /* 1차 인터랙션 · 링크 · info */
-  --color-green:  #1e7a43;   /* 성공 · 양수 · 문자열 (포레스트 그린 — teal 아님) */
-  --color-red:    #c6362e;   /* 오류 · 위험 · 음수 */
-  --color-amber:  #b26c0e;   /* 주의 · 숫자 · 병목 */
-  --color-purple: #6b4cc4;   /* 용어(TERM) · 키워드 · 특수 */
-  --color-slate:  #4b5563;   /* 중립 데이터 */
+  --color-blue: #2166d6; /* 1차 인터랙션 · 링크 · info */
+  --color-green: #1e7a43; /* 성공 · 양수 · 문자열 (포레스트 그린 — teal 아님) */
+  --color-red: #c6362e; /* 오류 · 위험 · 음수 */
+  --color-amber: #b26c0e; /* 주의 · 숫자 · 병목 */
+  --color-purple: #6b4cc4; /* 용어(TERM) · 키워드 · 특수 */
+  --color-slate: #4b5563; /* 중립 데이터 */
   --color-accent: var(--color-blue);
-  --color-sel:    rgba(33, 102, 214, .16);   /* 텍스트 선택 · 행 선택 */
+  --color-sel: rgba(33, 102, 214, 0.16); /* 텍스트 선택 · 행 선택 */
 
   /* 다이어그램 전용 팔레트 — 콘텐츠 색보다 채도·명도를 올린 선명한 버전.
      구조 다이어그램(저장 계층 등)의 박스·보더·칩·라벨에만. 본문 콜아웃/표엔 --color-* 사용. */
-  --color-viz-blue:   #2563eb;
-  --color-viz-green:  #0f9d58;
-  --color-viz-amber:  #ef8a00;
+  --color-viz-blue: #2563eb;
+  --color-viz-green: #0f9d58;
+  --color-viz-amber: #ef8a00;
   --color-viz-purple: #7c3aed;
-  --color-viz-red:    #e5342b;
+  --color-viz-red: #e5342b;
 
-  /* 코드 문법 강조 — 코드블록 배경은 웜 그레이(--color-rail) */
-  --color-code-bg: #f7f6f3;
-  --color-sy-kw:  #6b4cc4;   /* keyword  — purple */
-  --color-sy-fn:  #2166d6;   /* function — blue */
-  --color-sy-str: #1e7a43;   /* string   — green */
-  --color-sy-num: #b26c0e;   /* number   — amber */
-  --color-sy-com: #83827a;   /* comment  — grey */
+  /* 코드 문법 강조 — 코드블록은 페이지·카드보다 한 톤 함몰된 웜 그레이.
+     rail(#f7f6f3)·paper(#fff) 어느 배경 위에 놓여도 "코드 영역"으로 구분되도록
+     rail 보다 살짝 진하게 잡는다. SqlHighlight 가 이 배경 + code-border 를 직접 두른다. */
+  --color-code-bg: #eeede8;
+  --color-code-border: #e0dfd8;
+  --color-sy-kw: #6b4cc4; /* keyword  — purple */
+  --color-sy-fn: #2166d6; /* function — blue */
+  --color-sy-str: #1e7a43; /* string   — green */
+  --color-sy-num: #b26c0e; /* number   — amber */
+  --color-sy-com: #83827a; /* comment  — grey */
 
   /* 모양 — 각진 Notion. Tailwind 기본 --radius-* 를 덮지 않도록 별도 이름. */
-  --radius-chip:  3px;    /* 칩 · 뱃지 · 작은 요소 */
-  --radius-card:  6px;    /* 카드 · 콜아웃 · 코드블록 · 표 */
-  --radius-panel: 8px;    /* 큰 패널 · 스테이지 */
+  --radius-chip: 3px; /* 칩 · 뱃지 · 작은 요소 */
+  --radius-card: 6px; /* 카드 · 콜아웃 · 코드블록 · 표 */
+  --radius-panel: 8px; /* 큰 패널 · 스테이지 */
 
   /* 타이포 유틸 매핑 — 언어별 스왑은 :root / :root:lang(en) 에서 처리 */
-  --font-sans: var(--font-sans-active);   /* font-sans → 언어별 UI 폰트 */
-  --font-read: var(--font-read-active);   /* font-read → 언어별 장문 폰트 (EN=세리프) */
-  --font-mono: var(--font-mono-stack);    /* font-mono → JetBrains Mono (위 :root 값 재사용) */
+  --font-sans: var(--font-sans-active); /* font-sans → 언어별 UI 폰트 */
+  --font-read: var(
+    --font-read-active
+  ); /* font-read → 언어별 장문 폰트 (EN=세리프) */
+  --font-mono: var(
+    --font-mono-stack
+  ); /* font-mono → JetBrains Mono (위 :root 값 재사용) */
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -219,92 +231,95 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme]) {
     color-scheme: dark;
-    --color-paper:      #1f1e1c;
+    --color-paper: #1f1e1c;
     --color-paper-sunk: #1a1917;
-    --color-rail:       #262523;
-    --color-ink:   #ececea;
+    --color-rail: #262523;
+    --color-ink: #ececea;
     --color-ink-2: #a5a49d;
     --color-ink-3: #8a887f;
-    --color-line:   #34322e;
+    --color-line: #34322e;
     --color-line-2: #423f39;
-    --color-blue:   #6ea3f0;
-    --color-green:  #63b981;
-    --color-red:    #e8837b;
-    --color-amber:  #d9a44f;
+    --color-blue: #6ea3f0;
+    --color-green: #63b981;
+    --color-red: #e8837b;
+    --color-amber: #d9a44f;
     --color-purple: #a98ee6;
-    --color-slate:  #93a1b3;
-    --color-sel:    rgba(110, 163, 240, .22);
-    --color-code-bg: #262523;
+    --color-slate: #93a1b3;
+    --color-sel: rgba(110, 163, 240, 0.22);
+    --color-code-bg: #191816;
+    --color-code-border: #333029;
     --color-sy-kw: #a98ee6;
     --color-sy-fn: #6ea3f0;
     --color-sy-str: #63b981;
     --color-sy-num: #d9a44f;
     --color-sy-com: #8f8b81;
-    --color-viz-blue:   #5b9bff;
-    --color-viz-green:  #2fcf7f;
-    --color-viz-amber:  #ffab3d;
+    --color-viz-blue: #5b9bff;
+    --color-viz-green: #2fcf7f;
+    --color-viz-amber: #ffab3d;
     --color-viz-purple: #a882ff;
-    --color-viz-red:    #ff6a5e;
+    --color-viz-red: #ff6a5e;
   }
 }
 
-[data-theme="dark"] {
+[data-theme='dark'] {
   color-scheme: dark;
-  --color-paper:      #1f1e1c;
+  --color-paper: #1f1e1c;
   --color-paper-sunk: #1a1917;
-  --color-rail:       #262523;
-  --color-ink:   #ececea;
+  --color-rail: #262523;
+  --color-ink: #ececea;
   --color-ink-2: #a5a49d;
   --color-ink-3: #8a887f;
-  --color-line:   #34322e;
+  --color-line: #34322e;
   --color-line-2: #423f39;
-  --color-blue:   #6ea3f0;
-  --color-green:  #63b981;
-  --color-red:    #e8837b;
-  --color-amber:  #d9a44f;
+  --color-blue: #6ea3f0;
+  --color-green: #63b981;
+  --color-red: #e8837b;
+  --color-amber: #d9a44f;
   --color-purple: #a98ee6;
-  --color-slate:  #93a1b3;
-  --color-sel:    rgba(110, 163, 240, .22);
-  --color-code-bg: #262523;
+  --color-slate: #93a1b3;
+  --color-sel: rgba(110, 163, 240, 0.22);
+  --color-code-bg: #191816;
+  --color-code-border: #333029;
   --color-sy-kw: #a98ee6;
   --color-sy-fn: #6ea3f0;
   --color-sy-str: #63b981;
   --color-sy-num: #d9a44f;
   --color-sy-com: #8f8b81;
-  --color-viz-blue:   #5b9bff;
-  --color-viz-green:  #2fcf7f;
-  --color-viz-amber:  #ffab3d;
+  --color-viz-blue: #5b9bff;
+  --color-viz-green: #2fcf7f;
+  --color-viz-amber: #ffab3d;
   --color-viz-purple: #a882ff;
-  --color-viz-red:    #ff6a5e;
+  --color-viz-red: #ff6a5e;
 }
 
 /* --- 라이트 재선언 (하위 트리 고정용) — 값은 위 :root 와 동일 --- */
-[data-theme="light"] {
+[data-theme='light'] {
   color-scheme: light;
-  --color-paper:      #ffffff;
+  --color-paper: #ffffff;
   --color-paper-sunk: #fbfbfa;
-  --color-rail:       #f7f6f3;
-  --color-ink:   #2f2e2b;
+  --color-rail: #f7f6f3;
+  --color-ink: #2f2e2b;
   --color-ink-2: #6f6e6a;
   --color-ink-3: #78776f;
-  --color-line:   #eae9e5;
+  --color-line: #eae9e5;
   --color-line-2: #dddcd6;
-  --color-blue:   #2166d6;
-  --color-green:  #1e7a43;
-  --color-red:    #c6362e;
-  --color-amber:  #b26c0e;
+  --color-blue: #2166d6;
+  --color-green: #1e7a43;
+  --color-red: #c6362e;
+  --color-amber: #b26c0e;
   --color-purple: #6b4cc4;
-  --color-slate:  #4b5563;
-  --color-sel:    rgba(33, 102, 214, .16);
-  --color-code-bg: #f7f6f3;
-  --color-sy-kw:  #6b4cc4;
-  --color-sy-fn:  #2166d6;
+  --color-slate: #4b5563;
+  --color-sel: rgba(33, 102, 214, 0.16);
+  --color-code-bg: #eeede8;
+  --color-code-border: #e0dfd8;
+  --color-sy-kw: #6b4cc4;
+  --color-sy-fn: #2166d6;
   --color-sy-str: #1e7a43;
   --color-sy-num: #b26c0e;
   --color-sy-com: #83827a;
-  --color-viz-blue:   #2563eb;
-  --color-viz-green:  #0f9d58;
-  --color-viz-amber:  #ef8a00;
+  --color-viz-blue: #2563eb;
+  --color-viz-green: #0f9d58;
+  --color-viz-amber: #ef8a00;
   --color-viz-purple: #7c3aed;
-  --color-viz-red:    #e5342b;
+  --color-viz-red: #e5342b;
 }

@@ -1,5 +1,13 @@
 import { useState } from 'react'
-import { PageContainer, ChapterTitle, Prose, Divider, InfoBox, TermPopup, AccordionSection } from '../../shared'
+import {
+  PageContainer,
+  ChapterTitle,
+  Prose,
+  Divider,
+  InfoBox,
+  TermPopup,
+  AccordionSection,
+} from '../../shared'
 import { IconCalendarEvent } from '@tabler/icons-react'
 import { SqlHighlight } from './SqlHighlight'
 import { useSimulationStore } from '@/store/simulationStore'
@@ -68,8 +76,15 @@ const FUNC_ITEMS: FuncItem[] = [
       en: "The example result above may differ from what you see when you run it. SYSDATE returns the DB server's current date and time at the moment the query executes, so the value changes every time. The display format may also vary depending on your session's NLS_DATE_FORMAT setting.\n\nNLS (National Language Support) is Oracle's mechanism for automatically adapting date, number, and character display to each country's language and regional settings. When SYSDATE is displayed, the session's NLS_DATE_FORMAT value controls how it appears.\n\nCheck the current NLS settings via the V$NLS_PARAMETERS view:\n\n  SELECT parameter, value\n  FROM   V$NLS_PARAMETERS\n  WHERE  parameter = 'NLS_DATE_FORMAT';\n\nSample result: NLS_DATE_FORMAT = 'RR/MM/DD'\n\nTo change it for the current session: ALTER SESSION SET NLS_DATE_FORMAT = 'YYYY-MM-DD HH24:MI:SS'. This applies only to the current connection — SYSDATE output will then appear in the specified format.",
     },
     example:
-      'SELECT SYSDATE,\n       SYSDATE + 1                      AS tomorrow,\n       SYSDATE - 7                      AS week_ago,\n       SYSDATE + 1/24                   AS plus_1h,\n       SYSDATE + 30/1440                AS plus_30m,\n       SYSDATE - TO_DATE(\'2025-01-01\', \'YYYY-MM-DD\') AS days_since\nFROM   DUAL',
-    resultHeaders: ['SYSDATE', 'tomorrow', 'week_ago', 'plus_1h', 'plus_30m', 'days_since'],
+      "SELECT SYSDATE,\n       SYSDATE + 1                      AS tomorrow,\n       SYSDATE - 7                      AS week_ago,\n       SYSDATE + 1/24                   AS plus_1h,\n       SYSDATE + 30/1440                AS plus_30m,\n       SYSDATE - TO_DATE('2025-01-01', 'YYYY-MM-DD') AS days_since\nFROM   DUAL",
+    resultHeaders: [
+      'SYSDATE',
+      'tomorrow',
+      'week_ago',
+      'plus_1h',
+      'plus_30m',
+      'days_since',
+    ],
     resultRows: [
       [
         '2025-04-25 09:30:00',
@@ -111,7 +126,10 @@ const FUNC_ITEMS: FuncItem[] = [
         {
           expr: 'date1 - date2',
           result: '일수 차이 (숫자)',
-          desc: { ko: 'DATE - DATE = NUMBER', en: 'DATE − DATE = NUMBER (days)' },
+          desc: {
+            ko: 'DATE - DATE = NUMBER',
+            en: 'DATE − DATE = NUMBER (days)',
+          },
         },
       ],
     },
@@ -133,7 +151,14 @@ const FUNC_ITEMS: FuncItem[] = [
     },
     example:
       "SELECT SYSTIMESTAMP                                AS ts_now,\n       SYSTIMESTAMP + INTERVAL '1' DAY            AS plus_1d,\n       SYSTIMESTAMP - INTERVAL '7' DAY            AS minus_7d,\n       SYSTIMESTAMP + INTERVAL '3' HOUR           AS plus_3h,\n       SYSTIMESTAMP - INTERVAL '30' MINUTE        AS minus_30m,\n       SYSTIMESTAMP + INTERVAL '0.5' SECOND       AS plus_half_sec\nFROM   DUAL",
-    resultHeaders: ['ts_now', 'plus_1d', 'minus_7d', 'plus_3h', 'minus_30m', 'plus_half_sec'],
+    resultHeaders: [
+      'ts_now',
+      'plus_1d',
+      'minus_7d',
+      'plus_3h',
+      'minus_30m',
+      'plus_half_sec',
+    ],
     resultRows: [
       [
         '2025-04-25 09:30:00.123 +09:00',
@@ -145,7 +170,10 @@ const FUNC_ITEMS: FuncItem[] = [
       ],
     ],
     arith: {
-      title: { ko: 'TIMESTAMP 산술 — INTERVAL 리터럴', en: 'TIMESTAMP Arithmetic — INTERVAL Literals' },
+      title: {
+        ko: 'TIMESTAMP 산술 — INTERVAL 리터럴',
+        en: 'TIMESTAMP Arithmetic — INTERVAL Literals',
+      },
       rows: [
         {
           expr: "SYSTIMESTAMP + INTERVAL '1' DAY",
@@ -165,37 +193,58 @@ const FUNC_ITEMS: FuncItem[] = [
         {
           expr: "SYSTIMESTAMP + INTERVAL '0.5' SECOND",
           result: '0.5초 후',
-          desc: { ko: '소수점 이하 초도 가능', en: 'fractional seconds supported' },
+          desc: {
+            ko: '소수점 이하 초도 가능',
+            en: 'fractional seconds supported',
+          },
         },
         {
           expr: 'ts1 - ts2',
           result: 'INTERVAL 값',
-          desc: { ko: 'TIMESTAMP - TIMESTAMP = INTERVAL DAY TO SECOND', en: 'result is INTERVAL DAY TO SECOND' },
+          desc: {
+            ko: 'TIMESTAMP - TIMESTAMP = INTERVAL DAY TO SECOND',
+            en: 'result is INTERVAL DAY TO SECOND',
+          },
         },
       ],
     },
     arith2: {
-      title: { ko: 'SYSTIMESTAMP 끼리 뺄셈 예시', en: 'SYSTIMESTAMP Subtraction Example' },
+      title: {
+        ko: 'SYSTIMESTAMP 끼리 뺄셈 예시',
+        en: 'SYSTIMESTAMP Subtraction Example',
+      },
       rows: [
         {
           expr: 'ts_end - ts_start',
           result: '+00 00:02:35.847000',
-          desc: { ko: 'INTERVAL DAY TO SECOND 타입 반환', en: 'returns INTERVAL DAY TO SECOND' },
+          desc: {
+            ko: 'INTERVAL DAY TO SECOND 타입 반환',
+            en: 'returns INTERVAL DAY TO SECOND',
+          },
         },
         {
           expr: '(ts_end - ts_start) * 86400',
           result: '155.847',
-          desc: { ko: '초 단위로 환산 (INTERVAL → 초)', en: 'convert to seconds' },
+          desc: {
+            ko: '초 단위로 환산 (INTERVAL → 초)',
+            en: 'convert to seconds',
+          },
         },
         {
-          expr: "EXTRACT(MINUTE FROM ts_end - ts_start)",
+          expr: 'EXTRACT(MINUTE FROM ts_end - ts_start)',
           result: '2',
-          desc: { ko: 'EXTRACT로 분 단위만 추출', en: 'extract minutes with EXTRACT' },
+          desc: {
+            ko: 'EXTRACT로 분 단위만 추출',
+            en: 'extract minutes with EXTRACT',
+          },
         },
         {
-          expr: "EXTRACT(SECOND FROM ts_end - ts_start)",
+          expr: 'EXTRACT(SECOND FROM ts_end - ts_start)',
           result: '35.847',
-          desc: { ko: 'EXTRACT로 초(소수점 포함) 추출', en: 'extract seconds (with fractions)' },
+          desc: {
+            ko: 'EXTRACT로 초(소수점 포함) 추출',
+            en: 'extract seconds (with fractions)',
+          },
         },
       ],
     },
@@ -206,7 +255,13 @@ const FUNC_ITEMS: FuncItem[] = [
       },
       example:
         "SELECT SYSTIMESTAMP                                        AS seoul_time,\n       SYSTIMESTAMP AT TIME ZONE 'UTC'                      AS utc_time,\n       SYSTIMESTAMP AT TIME ZONE 'America/New_York'         AS ny_time,\n       FROM_TZ(CAST(SYSDATE AS TIMESTAMP), 'Asia/Seoul')\n         AT TIME ZONE 'Europe/London'                       AS london_time,\n       SYS_EXTRACT_UTC(SYSTIMESTAMP)                        AS extracted_utc\nFROM   DUAL",
-      resultHeaders: ['seoul_time', 'utc_time', 'ny_time', 'london_time', 'extracted_utc'],
+      resultHeaders: [
+        'seoul_time',
+        'utc_time',
+        'ny_time',
+        'london_time',
+        'extracted_utc',
+      ],
       resultRows: [
         [
           '2025-04-25 09:30:00 +09:00',
@@ -218,31 +273,52 @@ const FUNC_ITEMS: FuncItem[] = [
       ],
       tzSetup: [
         {
-          title: { ko: '세션 타임존 설정 및 확인', en: 'Session Timezone — Set & Check' },
+          title: {
+            ko: '세션 타임존 설정 및 확인',
+            en: 'Session Timezone — Set & Check',
+          },
           lines: [
             {
               code: "ALTER SESSION SET TIME_ZONE = 'Asia/Seoul';",
-              comment: { ko: '세션 타임존을 서울(+09:00)로 설정', en: 'set session timezone to Seoul (+09:00)' },
+              comment: {
+                ko: '세션 타임존을 서울(+09:00)로 설정',
+                en: 'set session timezone to Seoul (+09:00)',
+              },
             },
             {
               code: "ALTER SESSION SET TIME_ZONE = '+09:00';",
-              comment: { ko: '오프셋으로 직접 지정도 가능', en: 'fixed offset also works' },
+              comment: {
+                ko: '오프셋으로 직접 지정도 가능',
+                en: 'fixed offset also works',
+              },
             },
             {
               code: 'SELECT DBTIMEZONE      FROM DUAL;',
-              comment: { ko: 'DB 서버 타임존 확인', en: 'check DB server timezone' },
+              comment: {
+                ko: 'DB 서버 타임존 확인',
+                en: 'check DB server timezone',
+              },
             },
             {
               code: 'SELECT SESSIONTIMEZONE FROM DUAL;',
-              comment: { ko: '현재 세션 타임존 확인', en: 'check current session timezone' },
+              comment: {
+                ko: '현재 세션 타임존 확인',
+                en: 'check current session timezone',
+              },
             },
             {
               code: 'SELECT CURRENT_TIMESTAMP FROM DUAL;',
-              comment: { ko: '세션 타임존 반영 — 세션 변경 시 값도 바뀜', en: 'reflects session timezone — changes with session' },
+              comment: {
+                ko: '세션 타임존 반영 — 세션 변경 시 값도 바뀜',
+                en: 'reflects session timezone — changes with session',
+              },
             },
             {
               code: 'SELECT SYSTIMESTAMP    FROM DUAL;',
-              comment: { ko: 'DB 서버 타임존 고정 — 세션 변경과 무관', en: 'fixed to DB server timezone — unaffected by session' },
+              comment: {
+                ko: 'DB 서버 타임존 고정 — 세션 변경과 무관',
+                en: 'fixed to DB server timezone — unaffected by session',
+              },
             },
           ],
         },
@@ -297,11 +373,16 @@ const FUNC_ITEMS: FuncItem[] = [
     },
     example:
       "-- 양수: SYSDATE가 hire_date보다 나중 → 근속 개월\nSELECT first_name,\n       hire_date,\n       ROUND(MONTHS_BETWEEN(SYSDATE, hire_date))   AS months_worked,\n       -- 음수: hire_date가 미래 기준일보다 이전\n       ROUND(MONTHS_BETWEEN(hire_date,\n             TO_DATE('2026-01-01','YYYY-MM-DD')))   AS months_until_2026\nFROM   employees\nWHERE  emp_id IN (101, 102, 103)",
-    resultHeaders: ['first_name', 'hire_date', 'months_worked', 'months_until_2026'],
+    resultHeaders: [
+      'first_name',
+      'hire_date',
+      'months_worked',
+      'months_until_2026',
+    ],
     resultRows: [
-      ['Alice', '2020-01-15', '63',  '-9'],
-      ['Bob',   '2020-03-01', '61',  '-10'],
-      ['Carol', '2021-07-31', '45',  '-9'],
+      ['Alice', '2020-01-15', '63', '-9'],
+      ['Bob', '2020-03-01', '61', '-10'],
+      ['Carol', '2021-07-31', '45', '-9'],
     ],
     note: {
       ko: 'date1 < date2이면 결과가 음수예요. 예: MONTHS_BETWEEN(hire_date, SYSDATE)는 입사일이 현재보다 과거이므로 음수를 반환해요.',
@@ -317,7 +398,16 @@ const FUNC_ITEMS: FuncItem[] = [
     },
     example:
       "SELECT SYSDATE,\n       TRUNC(SYSDATE)           AS day_start,\n       TRUNC(SYSDATE, 'MM')     AS month_start,\n       TRUNC(SYSDATE, 'YYYY')   AS year_start,\n       TRUNC(SYSDATE, 'IW')     AS iso_week_mon,\n       TRUNC(SYSDATE, 'WW')     AS week_sun,\n       TRUNC(SYSDATE, 'MI')     AS minute_start,\n       TRUNC(SYSDATE, 'YEAR')   AS year_start2\nFROM   DUAL",
-    resultHeaders: ['SYSDATE', 'day_start', 'month_start', 'year_start', 'iso_week_mon', 'week_sun', 'minute_start', 'year_start2'],
+    resultHeaders: [
+      'SYSDATE',
+      'day_start',
+      'month_start',
+      'year_start',
+      'iso_week_mon',
+      'week_sun',
+      'minute_start',
+      'year_start2',
+    ],
     resultRows: [
       [
         '2025-04-25 09:30:45',
@@ -333,17 +423,82 @@ const FUNC_ITEMS: FuncItem[] = [
     formatMasks: {
       title: { ko: 'TRUNC 주요 fmt 값', en: 'TRUNC fmt Values' },
       rows: [
-        { mask: '(생략)',  example: '2025-04-25 00:00:00', desc: { ko: '시간 부분을 00:00:00으로 초기화', en: 'zero out time portion' } },
-        { mask: 'DD',     example: '2025-04-25 00:00:00', desc: { ko: '하루의 시작 (생략과 동일)', en: 'start of day (same as omitting)' } },
-        { mask: 'MM',     example: '2025-04-01 00:00:00', desc: { ko: '해당 월의 1일', en: '1st of the month' } },
-        { mask: 'YYYY',   example: '2025-01-01 00:00:00', desc: { ko: '해당 연도의 1월 1일', en: 'January 1st of the year' } },
-        { mask: 'YEAR',   example: '2025-01-01 00:00:00', desc: { ko: 'YYYY와 동일 (연도 시작)', en: 'same as YYYY (year start)' } },
-        { mask: 'IW',     example: '2025-04-21 00:00:00', desc: { ko: 'ISO 주의 월요일 (ISO 8601 기준)', en: 'Monday of the ISO week (ISO 8601)' } },
-        { mask: 'WW',     example: '2025-04-20 00:00:00', desc: { ko: '연도 시작 기준 해당 주의 첫날(일요일)', en: 'first day of the week from year start (Sunday)' } },
-        { mask: 'MI',     example: '2025-04-25 09:30:00', desc: { ko: '해당 분의 시작 (초 제거)', en: 'start of the minute (seconds zeroed)' } },
-        { mask: 'HH / HH24', example: '2025-04-25 09:00:00', desc: { ko: '해당 시의 시작 (분·초 제거)', en: 'start of the hour (minutes and seconds zeroed)' } },
-        { mask: 'Q',      example: '2025-04-01 00:00:00', desc: { ko: '해당 분기의 첫날', en: 'first day of the quarter' } },
-        { mask: 'DDD',    example: '2025-04-25 00:00:00', desc: { ko: 'DD와 동일', en: 'same as DD' } },
+        {
+          mask: '(생략)',
+          example: '2025-04-25 00:00:00',
+          desc: {
+            ko: '시간 부분을 00:00:00으로 초기화',
+            en: 'zero out time portion',
+          },
+        },
+        {
+          mask: 'DD',
+          example: '2025-04-25 00:00:00',
+          desc: {
+            ko: '하루의 시작 (생략과 동일)',
+            en: 'start of day (same as omitting)',
+          },
+        },
+        {
+          mask: 'MM',
+          example: '2025-04-01 00:00:00',
+          desc: { ko: '해당 월의 1일', en: '1st of the month' },
+        },
+        {
+          mask: 'YYYY',
+          example: '2025-01-01 00:00:00',
+          desc: { ko: '해당 연도의 1월 1일', en: 'January 1st of the year' },
+        },
+        {
+          mask: 'YEAR',
+          example: '2025-01-01 00:00:00',
+          desc: {
+            ko: 'YYYY와 동일 (연도 시작)',
+            en: 'same as YYYY (year start)',
+          },
+        },
+        {
+          mask: 'IW',
+          example: '2025-04-21 00:00:00',
+          desc: {
+            ko: 'ISO 주의 월요일 (ISO 8601 기준)',
+            en: 'Monday of the ISO week (ISO 8601)',
+          },
+        },
+        {
+          mask: 'WW',
+          example: '2025-04-20 00:00:00',
+          desc: {
+            ko: '연도 시작 기준 해당 주의 첫날(일요일)',
+            en: 'first day of the week from year start (Sunday)',
+          },
+        },
+        {
+          mask: 'MI',
+          example: '2025-04-25 09:30:00',
+          desc: {
+            ko: '해당 분의 시작 (초 제거)',
+            en: 'start of the minute (seconds zeroed)',
+          },
+        },
+        {
+          mask: 'HH / HH24',
+          example: '2025-04-25 09:00:00',
+          desc: {
+            ko: '해당 시의 시작 (분·초 제거)',
+            en: 'start of the hour (minutes and seconds zeroed)',
+          },
+        },
+        {
+          mask: 'Q',
+          example: '2025-04-01 00:00:00',
+          desc: { ko: '해당 분기의 첫날', en: 'first day of the quarter' },
+        },
+        {
+          mask: 'DDD',
+          example: '2025-04-25 00:00:00',
+          desc: { ko: 'DD와 동일', en: 'same as DD' },
+        },
       ],
     },
     note: {
@@ -363,7 +518,7 @@ const FUNC_ITEMS: FuncItem[] = [
     resultHeaders: ['d1', 'd2'],
     resultRows: [['2025-01-15 00:00:00', '2025-06-30 18:00:00']],
     note: {
-      ko: "NLS_DATE_FORMAT 세션 설정과 다른 형식의 문자열을 비교하면 암묵적 변환이 발생해서 인덱스를 사용하지 못할 수 있어요. 명시적으로 TO_DATE를 사용하는 게 안전해요.",
+      ko: 'NLS_DATE_FORMAT 세션 설정과 다른 형식의 문자열을 비교하면 암묵적 변환이 발생해서 인덱스를 사용하지 못할 수 있어요. 명시적으로 TO_DATE를 사용하는 게 안전해요.',
       en: "Comparing a string whose format differs from the session's NLS_DATE_FORMAT triggers implicit conversion, which can prevent index use. Explicitly using TO_DATE is safer.",
     },
   },
@@ -376,53 +531,150 @@ const FUNC_ITEMS: FuncItem[] = [
     },
     example:
       "SELECT hire_date,\n       TO_CHAR(hire_date, 'YYYY-MM-DD')           AS iso,\n       TO_CHAR(hire_date, 'YYYY\"년\" MM\"월\" DD\"일\"') AS korean,\n       TO_CHAR(hire_date, 'Day, DD Month YYYY')   AS long_fmt,\n       TO_CHAR(hire_date, 'HH24:MI:SS')           AS time_only,\n       TO_CHAR(hire_date, 'Q')                    AS quarter,\n       TO_CHAR(hire_date, 'IW')                   AS iso_week\nFROM   employees\nWHERE  emp_id IN (101, 102)",
-    resultHeaders: ['hire_date', 'iso', 'korean', 'long_fmt', 'time_only', 'quarter', 'iso_week'],
+    resultHeaders: [
+      'hire_date',
+      'iso',
+      'korean',
+      'long_fmt',
+      'time_only',
+      'quarter',
+      'iso_week',
+    ],
     resultRows: [
-      ['2020-01-15 00:00:00', '2020-01-15', '2020년 01월 15일', 'Wednesday, 15 January 2020', '00:00:00', '1', '03'],
-      ['2020-03-01 00:00:00', '2020-03-01', '2020년 03월 01일', 'Sunday, 01 March 2020',      '00:00:00', '1', '09'],
+      [
+        '2020-01-15 00:00:00',
+        '2020-01-15',
+        '2020년 01월 15일',
+        'Wednesday, 15 January 2020',
+        '00:00:00',
+        '1',
+        '03',
+      ],
+      [
+        '2020-03-01 00:00:00',
+        '2020-03-01',
+        '2020년 03월 01일',
+        'Sunday, 01 March 2020',
+        '00:00:00',
+        '1',
+        '09',
+      ],
     ],
     formatMasks: {
       title: { ko: '주요 포맷 마스크 참고', en: 'Format Mask Reference' },
       rows: [
-        { mask: 'YYYY',      example: '2025',        desc: { ko: '4자리 연도', en: '4-digit year' } },
-        { mask: 'YY',        example: '25',          desc: { ko: '2자리 연도', en: '2-digit year' } },
-        { mask: 'MM',        example: '04',          desc: { ko: '2자리 월', en: '2-digit month' } },
-        { mask: 'MON',       example: 'APR',         desc: { ko: '월 약어 (3자)', en: 'month abbreviation' } },
-        { mask: 'MONTH',     example: 'APRIL',       desc: { ko: '월 전체 이름', en: 'full month name' } },
-        { mask: 'DD',        example: '25',          desc: { ko: '2자리 일', en: '2-digit day' } },
-        { mask: 'DY',        example: 'FRI',         desc: { ko: '요일 약어', en: 'day abbreviation' } },
-        { mask: 'DAY',       example: 'FRIDAY',      desc: { ko: '요일 전체 이름', en: 'full day name' } },
-        { mask: 'HH24',      example: '09',          desc: { ko: '24시간 형식', en: '24-hour clock' } },
-        { mask: 'HH12 / HH', example: '09',          desc: { ko: '12시간 형식', en: '12-hour clock' } },
-        { mask: 'MI',        example: '30',          desc: { ko: '분', en: 'minutes' } },
-        { mask: 'SS',        example: '00',          desc: { ko: '초', en: 'seconds' } },
-        { mask: 'AM / PM',   example: 'AM',          desc: { ko: '오전/오후 표시', en: 'meridian indicator' } },
-        { mask: 'Q',         example: '2',           desc: { ko: '분기 (1–4)', en: 'quarter (1–4)' } },
-        { mask: 'IW',        example: '17',          desc: { ko: 'ISO 주차 (01–53)', en: 'ISO week number' } },
-        { mask: 'WW',        example: '17',          desc: { ko: '연 기준 주차', en: 'week of year' } },
-        { mask: 'DDD',       example: '115',         desc: { ko: '연 기준 일자 (1–366)', en: 'day of year' } },
-        { mask: 'TZH:TZM',  example: '+09:00',       desc: { ko: '타임존 오프셋 (TIMESTAMP 전용)', en: 'timezone offset (TIMESTAMP only)' } },
+        {
+          mask: 'YYYY',
+          example: '2025',
+          desc: { ko: '4자리 연도', en: '4-digit year' },
+        },
+        {
+          mask: 'YY',
+          example: '25',
+          desc: { ko: '2자리 연도', en: '2-digit year' },
+        },
+        {
+          mask: 'MM',
+          example: '04',
+          desc: { ko: '2자리 월', en: '2-digit month' },
+        },
+        {
+          mask: 'MON',
+          example: 'APR',
+          desc: { ko: '월 약어 (3자)', en: 'month abbreviation' },
+        },
+        {
+          mask: 'MONTH',
+          example: 'APRIL',
+          desc: { ko: '월 전체 이름', en: 'full month name' },
+        },
+        {
+          mask: 'DD',
+          example: '25',
+          desc: { ko: '2자리 일', en: '2-digit day' },
+        },
+        {
+          mask: 'DY',
+          example: 'FRI',
+          desc: { ko: '요일 약어', en: 'day abbreviation' },
+        },
+        {
+          mask: 'DAY',
+          example: 'FRIDAY',
+          desc: { ko: '요일 전체 이름', en: 'full day name' },
+        },
+        {
+          mask: 'HH24',
+          example: '09',
+          desc: { ko: '24시간 형식', en: '24-hour clock' },
+        },
+        {
+          mask: 'HH12 / HH',
+          example: '09',
+          desc: { ko: '12시간 형식', en: '12-hour clock' },
+        },
+        { mask: 'MI', example: '30', desc: { ko: '분', en: 'minutes' } },
+        { mask: 'SS', example: '00', desc: { ko: '초', en: 'seconds' } },
+        {
+          mask: 'AM / PM',
+          example: 'AM',
+          desc: { ko: '오전/오후 표시', en: 'meridian indicator' },
+        },
+        {
+          mask: 'Q',
+          example: '2',
+          desc: { ko: '분기 (1–4)', en: 'quarter (1–4)' },
+        },
+        {
+          mask: 'IW',
+          example: '17',
+          desc: { ko: 'ISO 주차 (01–53)', en: 'ISO week number' },
+        },
+        {
+          mask: 'WW',
+          example: '17',
+          desc: { ko: '연 기준 주차', en: 'week of year' },
+        },
+        {
+          mask: 'DDD',
+          example: '115',
+          desc: { ko: '연 기준 일자 (1–366)', en: 'day of year' },
+        },
+        {
+          mask: 'TZH:TZM',
+          example: '+09:00',
+          desc: {
+            ko: '타임존 오프셋 (TIMESTAMP 전용)',
+            en: 'timezone offset (TIMESTAMP only)',
+          },
+        },
       ],
     },
     note: {
-      ko: "TO_CHAR 결과는 VARCHAR2 타입이에요. 날짜 비교 연산에 사용하면 문자열 비교가 되므로, 날짜 비교는 반드시 DATE 타입으로 수행하세요.",
-      en: "The result of TO_CHAR is VARCHAR2. Using it in date comparisons performs string comparison — always compare dates as DATE types.",
+      ko: 'TO_CHAR 결과는 VARCHAR2 타입이에요. 날짜 비교 연산에 사용하면 문자열 비교가 되므로, 날짜 비교는 반드시 DATE 타입으로 수행하세요.',
+      en: 'The result of TO_CHAR is VARCHAR2. Using it in date comparisons performs string comparison — always compare dates as DATE types.',
     },
   },
 ]
 
 // ── ResultTable ──────────────────────────────────────────────────────────────
 
-function ResultTable({ headers, rows }: { headers: string[]; rows: string[][] }) {
+function ResultTable({
+  headers,
+  rows,
+}: {
+  headers: string[]
+  rows: string[][]
+}) {
   return (
-    <div className="overflow-x-auto rounded-card border text-xs">
+    <div className="rounded-card overflow-x-auto border text-xs">
       <table className="w-max min-w-full">
         <thead>
-          <tr className="border-b bg-rail">
+          <tr className="bg-rail border-b">
             {headers.map((h) => (
               <th
                 key={h}
-                className="whitespace-nowrap px-2.5 py-1.5 text-left font-mono text-[10px] font-bold text-ink-2"
+                className="text-ink-2 px-2.5 py-1.5 text-left font-mono text-[10px] font-bold whitespace-nowrap"
               >
                 {h}
               </th>
@@ -435,7 +687,7 @@ function ResultTable({ headers, rows }: { headers: string[]; rows: string[][] })
               {row.map((cell, ci) => (
                 <td
                   key={ci}
-                  className="whitespace-nowrap px-2.5 py-1 font-mono text-[11px] text-ink/80"
+                  className="text-ink/80 px-2.5 py-1 font-mono text-[11px] whitespace-nowrap"
                 >
                   {cell}
                 </td>
@@ -450,27 +702,47 @@ function ResultTable({ headers, rows }: { headers: string[]; rows: string[][] })
 
 // ── FormatMaskTable ──────────────────────────────────────────────────────────
 
-function FormatMaskTable({ title, rows, lang }: { title: { ko: string; en: string }; rows: FormatMaskRow[]; lang: 'ko' | 'en' }) {
+function FormatMaskTable({
+  title,
+  rows,
+  lang,
+}: {
+  title: { ko: string; en: string }
+  rows: FormatMaskRow[]
+  lang: 'ko' | 'en'
+}) {
   return (
     <div>
-      <p className="mb-1.5 font-mono text-[11px] font-bold uppercase tracking-wider text-ink-2">
+      <p className="text-ink-2 mb-1.5 font-mono text-[11px] font-bold tracking-wider uppercase">
         {title[lang]}
       </p>
-      <div className="inline-block rounded-card border text-xs">
+      <div className="rounded-card inline-block border text-xs">
         <table className="w-auto">
           <thead>
-            <tr className="border-b bg-rail">
-              <th className="whitespace-nowrap px-2.5 py-1.5 text-left font-mono text-[10px] font-bold text-ink-2">{lang === 'ko' ? '마스크' : 'Mask'}</th>
-              <th className="whitespace-nowrap px-2.5 py-1.5 text-left font-mono text-[10px] font-bold text-ink-2">{lang === 'ko' ? '출력 예' : 'Output'}</th>
-              <th className="whitespace-nowrap px-2.5 py-1.5 text-left font-mono text-[10px] font-bold text-ink-2">{lang === 'ko' ? '설명' : 'Note'}</th>
+            <tr className="bg-rail border-b">
+              <th className="text-ink-2 px-2.5 py-1.5 text-left font-mono text-[10px] font-bold whitespace-nowrap">
+                {lang === 'ko' ? '마스크' : 'Mask'}
+              </th>
+              <th className="text-ink-2 px-2.5 py-1.5 text-left font-mono text-[10px] font-bold whitespace-nowrap">
+                {lang === 'ko' ? '출력 예' : 'Output'}
+              </th>
+              <th className="text-ink-2 px-2.5 py-1.5 text-left font-mono text-[10px] font-bold whitespace-nowrap">
+                {lang === 'ko' ? '설명' : 'Note'}
+              </th>
             </tr>
           </thead>
           <tbody>
             {rows.map((r) => (
               <tr key={r.mask} className="border-b last:border-0">
-                <td className="whitespace-nowrap px-2.5 py-1 font-mono text-[11px] font-bold text-blue">{r.mask}</td>
-                <td className="whitespace-nowrap px-2.5 py-1 font-mono text-[11px] text-ink/80">{r.example}</td>
-                <td className="whitespace-nowrap px-2.5 py-1 font-mono text-[11px] text-ink/70">{r.desc[lang]}</td>
+                <td className="text-blue px-2.5 py-1 font-mono text-[11px] font-bold whitespace-nowrap">
+                  {r.mask}
+                </td>
+                <td className="text-ink/80 px-2.5 py-1 font-mono text-[11px] whitespace-nowrap">
+                  {r.example}
+                </td>
+                <td className="text-ink/70 px-2.5 py-1 font-mono text-[11px] whitespace-nowrap">
+                  {r.desc[lang]}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -482,27 +754,47 @@ function FormatMaskTable({ title, rows, lang }: { title: { ko: string; en: strin
 
 // ── ArithTable ───────────────────────────────────────────────────────────────
 
-function ArithTable({ title, rows, lang }: { title: { ko: string; en: string }; rows: ArithRow[]; lang: 'ko' | 'en' }) {
+function ArithTable({
+  title,
+  rows,
+  lang,
+}: {
+  title: { ko: string; en: string }
+  rows: ArithRow[]
+  lang: 'ko' | 'en'
+}) {
   return (
     <div>
-      <p className="mb-1.5 font-mono text-[11px] font-bold uppercase tracking-wider text-ink-2">
+      <p className="text-ink-2 mb-1.5 font-mono text-[11px] font-bold tracking-wider uppercase">
         {title[lang]}
       </p>
-      <div className="inline-block rounded-card border text-xs">
+      <div className="rounded-card inline-block border text-xs">
         <table className="w-auto">
           <thead>
-            <tr className="border-b bg-rail">
-              <th className="whitespace-nowrap px-2.5 py-1.5 text-left font-mono text-[10px] font-bold text-ink-2">식</th>
-              <th className="whitespace-nowrap px-2.5 py-1.5 text-left font-mono text-[10px] font-bold text-ink-2">{lang === 'ko' ? '결과' : 'Result'}</th>
-              <th className="whitespace-nowrap px-2.5 py-1.5 text-left font-mono text-[10px] font-bold text-ink-2">{lang === 'ko' ? '설명' : 'Note'}</th>
+            <tr className="bg-rail border-b">
+              <th className="text-ink-2 px-2.5 py-1.5 text-left font-mono text-[10px] font-bold whitespace-nowrap">
+                식
+              </th>
+              <th className="text-ink-2 px-2.5 py-1.5 text-left font-mono text-[10px] font-bold whitespace-nowrap">
+                {lang === 'ko' ? '결과' : 'Result'}
+              </th>
+              <th className="text-ink-2 px-2.5 py-1.5 text-left font-mono text-[10px] font-bold whitespace-nowrap">
+                {lang === 'ko' ? '설명' : 'Note'}
+              </th>
             </tr>
           </thead>
           <tbody>
             {rows.map((r) => (
               <tr key={r.expr} className="border-b last:border-0">
-                <td className="whitespace-nowrap px-2.5 py-1 font-mono text-[11px] text-blue">{r.expr}</td>
-                <td className="whitespace-nowrap px-2.5 py-1 font-mono text-[11px] text-ink/80">{r.result}</td>
-                <td className="whitespace-nowrap px-2.5 py-1 font-mono text-[11px] text-ink/70">{r.desc[lang]}</td>
+                <td className="text-blue px-2.5 py-1 font-mono text-[11px] whitespace-nowrap">
+                  {r.expr}
+                </td>
+                <td className="text-ink/80 px-2.5 py-1 font-mono text-[11px] whitespace-nowrap">
+                  {r.result}
+                </td>
+                <td className="text-ink/70 px-2.5 py-1 font-mono text-[11px] whitespace-nowrap">
+                  {r.desc[lang]}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -527,7 +819,8 @@ const T = {
   },
   en: {
     chapterTitle: '날짜와 시간를 다루는 법',
-    chapterSubtitle: 'Learn the essential Oracle date and time functions: SYSDATE, SYSTIMESTAMP, timezone conversion, ADD_MONTHS, MONTHS_BETWEEN, TRUNC, TO_DATE, and TO_CHAR.',
+    chapterSubtitle:
+      'Learn the essential Oracle date and time functions: SYSDATE, SYSTIMESTAMP, timezone conversion, ADD_MONTHS, MONTHS_BETWEEN, TRUNC, TO_DATE, and TO_CHAR.',
     categoryLabel: 'Date / Time Functions',
     exampleQuery: 'Example Query',
     result: 'Result',
@@ -541,14 +834,22 @@ const T = {
 
 // ── FuncContent ──────────────────────────────────────────────────────────────
 
-function FuncContent({ item, lang, t }: { item: FuncItem; lang: 'ko' | 'en'; t: typeof T['ko'] }) {
+function FuncContent({
+  item,
+  lang,
+  t,
+}: {
+  item: FuncItem
+  lang: 'ko' | 'en'
+  t: (typeof T)['ko']
+}) {
   const [tzModalOpen, setTzModalOpen] = useState(false)
 
   return (
     <div className="flex flex-col gap-4">
       {/* 시그니처 */}
       <div>
-        <span className="inline-block rounded border bg-blue/10 px-2 py-0.5 font-mono text-[11px] text-blue">
+        <span className="bg-blue/10 text-blue inline-block rounded border px-2 py-0.5 font-mono text-[11px]">
           {item.signature}
         </span>
       </div>
@@ -567,32 +868,28 @@ function FuncContent({ item, lang, t }: { item: FuncItem; lang: 'ko' | 'en'; t: 
               onOpen={() => setTzModalOpen(true)}
               onClose={() => setTzModalOpen(false)}
             >
-              <span style={{ whiteSpace: 'pre-line' }}>{item.tzInfo[lang]}</span>
+              <span style={{ whiteSpace: 'pre-line' }}>
+                {item.tzInfo[lang]}
+              </span>
             </TermPopup>
           </div>
         )}
       </div>
 
       {/* DUAL 설명 InfoBox */}
-      {item.dualInfo && (
-        <InfoBox variant="note">
-          {item.dualInfo[lang]}
-        </InfoBox>
-      )}
+      {item.dualInfo && <InfoBox variant="note">{item.dualInfo[lang]}</InfoBox>}
 
       {/* 예시 쿼리 */}
       <div>
-        <p className="mb-1.5 font-mono text-[11px] font-bold uppercase tracking-wider text-ink-2">
+        <p className="text-ink-2 mb-1.5 font-mono text-[11px] font-bold tracking-wider uppercase">
           {t.exampleQuery}
         </p>
-        <div className="rounded-panel border bg-rail px-4 py-3">
-          <SqlHighlight sql={item.example} />
-        </div>
+        <SqlHighlight sql={item.example} />
       </div>
 
       {/* 실행 결과 */}
       <div>
-        <p className="mb-2 font-mono text-[11px] font-bold uppercase tracking-wider text-ink-2">
+        <p className="text-ink-2 mb-2 font-mono text-[11px] font-bold tracking-wider uppercase">
           {t.result}
         </p>
         <ResultTable headers={item.resultHeaders} rows={item.resultRows} />
@@ -601,33 +898,45 @@ function FuncContent({ item, lang, t }: { item: FuncItem; lang: 'ko' | 'en'; t: 
       {/* SYSDATE ↔ TIMESTAMP 변환 예시 */}
       {item.castExample && (
         <div>
-          <p className="mb-1.5 font-mono text-[11px] font-bold uppercase tracking-wider text-ink-2">
-            {lang === 'ko' ? 'SYSDATE ↔ TIMESTAMP 변환' : 'SYSDATE ↔ TIMESTAMP Conversion'}
+          <p className="text-ink-2 mb-1.5 font-mono text-[11px] font-bold tracking-wider uppercase">
+            {lang === 'ko'
+              ? 'SYSDATE ↔ TIMESTAMP 변환'
+              : 'SYSDATE ↔ TIMESTAMP Conversion'}
           </p>
-          <div className="mb-3 rounded-panel border bg-rail px-4 py-3">
-            <SqlHighlight sql={item.castExample.sql} />
-          </div>
-          <ResultTable headers={item.castExample.headers} rows={item.castExample.rows} />
+          <SqlHighlight sql={item.castExample.sql} className="mb-3" />
+          <ResultTable
+            headers={item.castExample.headers}
+            rows={item.castExample.rows}
+          />
         </div>
       )}
 
       {/* 산술 연산 표 */}
       {item.arith && (
-        <ArithTable title={item.arith.title} rows={item.arith.rows} lang={lang} />
+        <ArithTable
+          title={item.arith.title}
+          rows={item.arith.rows}
+          lang={lang}
+        />
       )}
 
       {/* SYSTIMESTAMP 끼리의 연산 예시 */}
       {item.arith2 && (
         <div>
-          <p className="mb-1.5 font-mono text-[11px] font-bold uppercase tracking-wider text-ink-2">
+          <p className="text-ink-2 mb-1.5 font-mono text-[11px] font-bold tracking-wider uppercase">
             {t.arith2Title}
           </p>
-          <div className="mb-3 rounded-panel border bg-rail px-4 py-3">
-            <SqlHighlight sql={
+          <SqlHighlight
+            className="mb-3"
+            sql={
               "-- 두 SYSTIMESTAMP 값 사이의 경과 시간 측정\nSELECT ts_end - ts_start                              AS diff_interval,\n       EXTRACT(MINUTE FROM ts_end - ts_start)          AS diff_min,\n       EXTRACT(SECOND FROM ts_end - ts_start)          AS diff_sec\nFROM (\n  SELECT SYSTIMESTAMP                          AS ts_start,\n         SYSTIMESTAMP + INTERVAL '0:2:35.847' MINUTE TO SECOND AS ts_end\n  FROM DUAL\n)"
-            } />
-          </div>
-          <ArithTable title={item.arith2.title} rows={item.arith2.rows} lang={lang} />
+            }
+          />
+          <ArithTable
+            title={item.arith2.title}
+            rows={item.arith2.rows}
+            lang={lang}
+          />
         </div>
       )}
 
@@ -636,33 +945,34 @@ function FuncContent({ item, lang, t }: { item: FuncItem; lang: 'ko' | 'en'; t: 
         <>
           <Divider />
           <div>
-            <p className="mb-2 font-mono text-[11px] font-bold uppercase tracking-wider text-ink-2">
+            <p className="text-ink-2 mb-2 font-mono text-[11px] font-bold tracking-wider uppercase">
               {t.tzConvertTitle}
             </p>
-            <div className="mb-3 rounded-panel border bg-paper px-4 py-3">
+            <div className="rounded-panel bg-paper mb-3 border px-4 py-3">
               <Prose>{item.tzConvert.desc[lang]}</Prose>
             </div>
-            <div className="mb-3 rounded-panel border bg-rail px-4 py-3">
-              <SqlHighlight sql={item.tzConvert.example} />
-            </div>
-            <ResultTable headers={item.tzConvert.resultHeaders} rows={item.tzConvert.resultRows} />
+            <SqlHighlight sql={item.tzConvert.example} className="mb-3" />
+            <ResultTable
+              headers={item.tzConvert.resultHeaders}
+              rows={item.tzConvert.resultRows}
+            />
           </div>
 
           {item.tzConvert.tzSetup.map((block) => (
             <div key={block.title.ko}>
-              <p className="mb-1.5 font-mono text-[11px] font-bold uppercase tracking-wider text-ink-2">
+              <p className="text-ink-2 mb-1.5 font-mono text-[11px] font-bold tracking-wider uppercase">
                 {block.title[lang]}
               </p>
-              <div className="overflow-x-auto rounded-panel border bg-rail px-4 py-3">
+              <div className="rounded-panel bg-rail overflow-x-auto border px-4 py-3">
                 <table className="w-full text-xs">
                   <tbody>
                     {block.lines.map((line, i) => (
                       <tr key={i}>
-                        <td className="whitespace-nowrap py-0.5 pr-4 font-mono text-[11px] text-blue">
+                        <td className="text-blue py-0.5 pr-4 font-mono text-[11px] whitespace-nowrap">
                           {line.code}
                         </td>
                         {line.comment[lang] && (
-                          <td className="py-0.5 font-mono text-[11px] text-ink-2">
+                          <td className="text-ink-2 py-0.5 font-mono text-[11px]">
                             {`-- ${line.comment[lang]}`}
                           </td>
                         )}
@@ -678,15 +988,15 @@ function FuncContent({ item, lang, t }: { item: FuncItem; lang: 'ko' | 'en'; t: 
 
       {/* 포맷 마스크 표 */}
       {item.formatMasks && (
-        <FormatMaskTable title={item.formatMasks.title} rows={item.formatMasks.rows} lang={lang} />
+        <FormatMaskTable
+          title={item.formatMasks.title}
+          rows={item.formatMasks.rows}
+          lang={lang}
+        />
       )}
 
       {/* vs 비교 노트 */}
-      {item.vsNote && (
-        <InfoBox variant="warning">
-          {item.vsNote[lang]}
-        </InfoBox>
-      )}
+      {item.vsNote && <InfoBox variant="warning">{item.vsNote[lang]}</InfoBox>}
 
       {/* NLS 설명 InfoBox */}
       {item.nlsNote && (
@@ -697,8 +1007,9 @@ function FuncContent({ item, lang, t }: { item: FuncItem; lang: 'ko' | 'en'; t: 
 
       {/* 참고 */}
       {item.note && (
-        <div className="rounded-panel border bg-rail px-4 py-3 text-xs leading-relaxed text-ink/80">
-          <span className="mr-1.5 font-bold">💡</span>{item.note[lang]}
+        <div className="rounded-panel bg-rail text-ink/80 border px-4 py-3 text-xs leading-relaxed">
+          <span className="mr-1.5 font-bold">💡</span>
+          {item.note[lang]}
         </div>
       )}
     </div>
@@ -714,14 +1025,20 @@ export function DateSection() {
   return (
     <PageContainer className="max-w-5xl">
       <ChapterTitle
-        icon={<IconCalendarEvent size={36} color="var(--color-blue)" stroke={1.5} />}
+        icon={
+          <IconCalendarEvent size={36} color="var(--color-blue)" stroke={1.5} />
+        }
         title={t.chapterTitle}
         subtitle={t.chapterSubtitle}
       />
 
       <div className="flex flex-col gap-2">
         {FUNC_ITEMS.map((item, idx) => (
-          <AccordionSection key={item.name} title={`${item.name}  —  ${item.signature}`} defaultOpen={idx === 0}>
+          <AccordionSection
+            key={item.name}
+            title={`${item.name}  —  ${item.signature}`}
+            defaultOpen={idx === 0}
+          >
             <FuncContent item={item} lang={lang} t={t} />
           </AccordionSection>
         ))}
@@ -729,4 +1046,3 @@ export function DateSection() {
     </PageContainer>
   )
 }
-

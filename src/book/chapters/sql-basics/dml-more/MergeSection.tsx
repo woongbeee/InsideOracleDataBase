@@ -1,8 +1,19 @@
 import { cn } from '@/lib/utils'
 import {
-  PageContainer, ChapterTitle, SectionTitle, SubTitle, Prose, InfoBox, Divider,
+  PageContainer,
+  ChapterTitle,
+  SectionTitle,
+  SubTitle,
+  Prose,
+  InfoBox,
+  Divider,
 } from '../../shared'
-import { IconGitMerge, IconRefresh, IconPackageImport, IconTrash } from '@tabler/icons-react'
+import {
+  IconGitMerge,
+  IconRefresh,
+  IconPackageImport,
+  IconTrash,
+} from '@tabler/icons-react'
 import { SqlHighlight } from './SqlHighlight'
 import { useSimulationStore } from '@/store/simulationStore'
 
@@ -39,7 +50,13 @@ const T = {
         desc: '외부 시스템에서 받아온 데이터를 내부 테이블에 반영할 때',
       },
       {
-        icon: <IconPackageImport size={16} color="var(--color-green)" stroke={1.5} />,
+        icon: (
+          <IconPackageImport
+            size={16}
+            color="var(--color-green)"
+            stroke={1.5}
+          />
+        ),
         title: 'Upsert',
         desc: '있으면 업데이트, 없으면 삽입 — 중복 체크 없이 한 번에',
       },
@@ -60,9 +77,7 @@ const T = {
     sqlError: 'SQL — 오류',
     sqlCorrect: 'SQL — 올바른 예',
     noteTitle: '주의사항',
-    noteItems: [
-      'Oracle 9i 이상에서 지원해요.',
-    ],
+    noteItems: ['Oracle 9i 이상에서 지원해요.'],
   },
   en: {
     chapterTitle: 'MERGE INTO',
@@ -96,7 +111,13 @@ const T = {
         desc: 'Apply incoming data from an external system to an internal table',
       },
       {
-        icon: <IconPackageImport size={16} color="var(--color-green)" stroke={1.5} />,
+        icon: (
+          <IconPackageImport
+            size={16}
+            color="var(--color-green)"
+            stroke={1.5}
+          />
+        ),
         title: 'Upsert',
         desc: 'Update if exists, insert if not — no duplicate checks needed',
       },
@@ -117,30 +138,38 @@ const T = {
     sqlError: 'SQL — Error',
     sqlCorrect: 'SQL — Correct',
     noteTitle: 'Important notes',
-    noteItems: [
-      'Supported in Oracle 9i and above.',
-    ],
+    noteItems: ['Supported in Oracle 9i and above.'],
   },
 }
 
-
 // ── Data ──────────────────────────────────────────────────────────────────────
 
-interface SourceRow { emp_id: number; first_name: string; dept_id: number; salary: number }
-interface TargetRow { emp_id: number; first_name: string; dept_id: number; salary: number; status?: string }
+interface SourceRow {
+  emp_id: number
+  first_name: string
+  dept_id: number
+  salary: number
+}
+interface TargetRow {
+  emp_id: number
+  first_name: string
+  dept_id: number
+  salary: number
+  status?: string
+}
 
 const SOURCE_ROWS: SourceRow[] = [
-  { emp_id: 101, first_name: 'Alice',  dept_id: 10, salary: 8000 },
-  { emp_id: 102, first_name: 'Bob',    dept_id: 20, salary: 5600 },
-  { emp_id: 110, first_name: 'Iris',   dept_id: 30, salary: 4200 },
-  { emp_id: 111, first_name: 'Jake',   dept_id: 10, salary: 7100 },
+  { emp_id: 101, first_name: 'Alice', dept_id: 10, salary: 8000 },
+  { emp_id: 102, first_name: 'Bob', dept_id: 20, salary: 5600 },
+  { emp_id: 110, first_name: 'Iris', dept_id: 30, salary: 4200 },
+  { emp_id: 111, first_name: 'Jake', dept_id: 10, salary: 7100 },
 ]
 
 const INITIAL_TARGET: TargetRow[] = [
-  { emp_id: 101, first_name: 'Alice',  dept_id: 10, salary: 7200 },
-  { emp_id: 102, first_name: 'Bob',    dept_id: 20, salary: 5400 },
-  { emp_id: 103, first_name: 'Carol',  dept_id: 10, salary: 8100 },
-  { emp_id: 104, first_name: 'David',  dept_id: 30, salary: 4900 },
+  { emp_id: 101, first_name: 'Alice', dept_id: 10, salary: 7200 },
+  { emp_id: 102, first_name: 'Bob', dept_id: 20, salary: 5400 },
+  { emp_id: 103, first_name: 'Carol', dept_id: 10, salary: 8100 },
+  { emp_id: 104, first_name: 'David', dept_id: 30, salary: 4900 },
 ]
 
 const MERGE_SQL = `MERGE INTO employees t
@@ -199,8 +228,17 @@ WHEN MATCHED THEN
 // SOURCE: emp_id 101 (dept_id=10), 102 (dept_id=99)
 // TARGET: emp_id 101~104; after UPDATE emp_id=102 gets dept_id=99 → DELETE fires
 
-interface Ex2SourceRow { emp_id: number; dept_id: number; salary: number }
-interface Ex2TargetRow { emp_id: number; first_name: string; dept_id: number; salary: number }
+interface Ex2SourceRow {
+  emp_id: number
+  dept_id: number
+  salary: number
+}
+interface Ex2TargetRow {
+  emp_id: number
+  first_name: string
+  dept_id: number
+  salary: number
+}
 
 const EX2_SOURCE: Ex2SourceRow[] = [
   { emp_id: 101, dept_id: 10, salary: 8000 },
@@ -209,7 +247,7 @@ const EX2_SOURCE: Ex2SourceRow[] = [
 
 const EX2_TARGET: Ex2TargetRow[] = [
   { emp_id: 101, first_name: 'Alice', dept_id: 10, salary: 7200 },
-  { emp_id: 102, first_name: 'Bob',   dept_id: 30, salary: 5400 },
+  { emp_id: 102, first_name: 'Bob', dept_id: 30, salary: 5400 },
   { emp_id: 103, first_name: 'Carol', dept_id: 10, salary: 8100 },
   { emp_id: 104, first_name: 'David', dept_id: 99, salary: 4900 },
 ]
@@ -221,24 +259,55 @@ type Ex2RowState = 'updated' | 'deleted' | 'unchanged'
 // emp_id=102: matched, dept_id becomes 99 → updated then deleted
 // emp_id=103,104: no source row → unchanged (104 has dept_id=99 but no match → untouched)
 const EX2_RESULT: (Ex2TargetRow & { state: Ex2RowState })[] = [
-  { emp_id: 101, first_name: 'Alice', dept_id: 10, salary: 8000, state: 'updated' },
-  { emp_id: 103, first_name: 'Carol', dept_id: 10, salary: 8100, state: 'unchanged' },
-  { emp_id: 104, first_name: 'David', dept_id: 99, salary: 4900, state: 'unchanged' },
+  {
+    emp_id: 101,
+    first_name: 'Alice',
+    dept_id: 10,
+    salary: 8000,
+    state: 'updated',
+  },
+  {
+    emp_id: 103,
+    first_name: 'Carol',
+    dept_id: 10,
+    salary: 8100,
+    state: 'unchanged',
+  },
+  {
+    emp_id: 104,
+    first_name: 'David',
+    dept_id: 99,
+    salary: 4900,
+    state: 'unchanged',
+  },
 ]
 
 // ── Static merge table ────────────────────────────────────────────────────────
 
 const MERGE_TABLE_COLS = ['emp_id', 'first_name', 'dept_id', 'salary'] as const
 
-function MergeTableHeader({ cols = MERGE_TABLE_COLS as readonly string[], extraCol }: { cols?: readonly string[]; extraCol?: string }) {
+function MergeTableHeader({
+  cols = MERGE_TABLE_COLS as readonly string[],
+  extraCol,
+}: {
+  cols?: readonly string[]
+  extraCol?: string
+}) {
   return (
     <thead>
-      <tr className="border-b bg-rail">
+      <tr className="bg-rail border-b">
         {cols.map((h) => (
-          <th key={h} className="px-3 py-2 text-left font-mono text-[10px] font-bold text-ink-2 whitespace-nowrap">{h}</th>
+          <th
+            key={h}
+            className="text-ink-2 px-3 py-2 text-left font-mono text-[10px] font-bold whitespace-nowrap"
+          >
+            {h}
+          </th>
         ))}
         {extraCol && (
-          <th className="px-3 py-2 text-left font-mono text-[10px] font-bold text-ink-2 whitespace-nowrap">{extraCol}</th>
+          <th className="text-ink-2 px-3 py-2 text-left font-mono text-[10px] font-bold whitespace-nowrap">
+            {extraCol}
+          </th>
         )}
       </tr>
     </thead>
@@ -260,48 +329,62 @@ const RESULT_ROWS: TargetRow[] = [
     if (src) return { ...r, salary: src.salary }
     return { ...r }
   }),
-  ...SOURCE_ROWS.filter((s) => !INITIAL_TARGET.some((r) => r.emp_id === s.emp_id)),
+  ...SOURCE_ROWS.filter(
+    (s) => !INITIAL_TARGET.some((r) => r.emp_id === s.emp_id)
+  ),
 ]
 
-function MergeTables({ t }: { t: typeof T['ko'] }) {
+function MergeTables({ t }: { t: (typeof T)['ko'] }) {
   return (
-    <div className="mb-6 rounded-panel border bg-rail overflow-hidden">
+    <div className="rounded-panel bg-rail mb-6 overflow-hidden border">
       {/* Legend */}
-      <div className="border-b bg-rail px-4 py-2.5 flex flex-wrap items-center gap-x-3 gap-y-1.5">
+      <div className="bg-rail flex flex-wrap items-center gap-x-3 gap-y-1.5 border-b px-4 py-2.5">
         <span className="flex items-center gap-1.5 font-mono text-[10px]">
-          <span className="inline-block h-2.5 w-2.5 rounded-chip bg-amber/10 border border-amber/30" />
+          <span className="rounded-chip bg-amber/10 border-amber/30 inline-block h-2.5 w-2.5 border" />
           <span className="text-amber font-bold">{t.matched}</span>
         </span>
         <span className="flex items-center gap-1.5 font-mono text-[10px]">
-          <span className="inline-block h-2.5 w-2.5 rounded-chip bg-green/10 border border-green/30" />
+          <span className="rounded-chip bg-green/10 border-green/30 inline-block h-2.5 w-2.5 border" />
           <span className="text-green font-bold">{t.notMatched}</span>
         </span>
       </div>
 
       {/* 3-panel layout: TARGET | SOURCE | RESULT */}
       <div className="grid grid-cols-1 gap-0 lg:grid-cols-3 lg:divide-x">
-
         {/* TARGET */}
         <div className="p-4">
-          <div className="mb-2 flex items-center gap-1.5 font-mono text-[10px] font-bold uppercase tracking-widest">
+          <div className="mb-2 flex items-center gap-1.5 font-mono text-[10px] font-bold tracking-widest uppercase">
             <span className="text-ink/70">{t.targetTable}</span>
-            <span className="rounded bg-amber/15 px-1.5 py-0.5 text-[9px] font-bold text-amber normal-case tracking-normal">{t.targetLabel}</span>
+            <span className="bg-amber/15 text-amber rounded px-1.5 py-0.5 text-[9px] font-bold tracking-normal normal-case">
+              {t.targetLabel}
+            </span>
           </div>
-          <div className="overflow-x-auto rounded-card border-2 border-amber/30">
+          <div className="rounded-card border-amber/30 overflow-x-auto border-2">
             <table className="w-full text-xs">
               <MergeTableHeader />
               <tbody>
                 {INITIAL_TARGET.map((row) => {
                   const state = MERGE_ROW_STATES[row.emp_id]
                   return (
-                    <tr key={row.emp_id} className={cn(
-                      'border-b last:border-0',
-                      state === 'updated' ? 'bg-amber/10' : '',
-                    )}>
-                      <td className="px-3 py-1.5 font-mono text-[11px] whitespace-nowrap text-ink/80">{row.emp_id}</td>
-                      <td className="px-3 py-1.5 font-mono text-[11px] whitespace-nowrap text-ink/80">{row.first_name}</td>
-                      <td className="px-3 py-1.5 font-mono text-[11px] whitespace-nowrap text-ink/80">{row.dept_id}</td>
-                      <td className="px-3 py-1.5 font-mono text-[11px] whitespace-nowrap text-ink/80">{row.salary.toLocaleString()}</td>
+                    <tr
+                      key={row.emp_id}
+                      className={cn(
+                        'border-b last:border-0',
+                        state === 'updated' ? 'bg-amber/10' : ''
+                      )}
+                    >
+                      <td className="text-ink/80 px-3 py-1.5 font-mono text-[11px] whitespace-nowrap">
+                        {row.emp_id}
+                      </td>
+                      <td className="text-ink/80 px-3 py-1.5 font-mono text-[11px] whitespace-nowrap">
+                        {row.first_name}
+                      </td>
+                      <td className="text-ink/80 px-3 py-1.5 font-mono text-[11px] whitespace-nowrap">
+                        {row.dept_id}
+                      </td>
+                      <td className="text-ink/80 px-3 py-1.5 font-mono text-[11px] whitespace-nowrap">
+                        {row.salary.toLocaleString()}
+                      </td>
                     </tr>
                   )
                 })}
@@ -311,25 +394,36 @@ function MergeTables({ t }: { t: typeof T['ko'] }) {
         </div>
 
         {/* SOURCE */}
-        <div className="p-4 border-t lg:border-t-0">
-          <div className="mb-2 font-mono text-[10px] font-bold uppercase tracking-widest text-ink-2">
+        <div className="border-t p-4 lg:border-t-0">
+          <div className="text-ink-2 mb-2 font-mono text-[10px] font-bold tracking-widest uppercase">
             {t.sourceTable}
           </div>
-          <div className="overflow-x-auto rounded-card border">
+          <div className="rounded-card overflow-x-auto border">
             <table className="w-full text-xs">
               <MergeTableHeader />
               <tbody>
                 {SOURCE_ROWS.map((src) => {
                   const state = MERGE_ROW_STATES[src.emp_id]
                   return (
-                    <tr key={src.emp_id} className={cn(
-                      'border-b last:border-0',
-                      state === 'updated' ? 'bg-amber/10' : 'bg-green/10',
-                    )}>
-                      <td className="px-3 py-1.5 font-mono text-[11px] whitespace-nowrap text-ink/80">{src.emp_id}</td>
-                      <td className="px-3 py-1.5 font-mono text-[11px] whitespace-nowrap text-ink/80">{src.first_name}</td>
-                      <td className="px-3 py-1.5 font-mono text-[11px] whitespace-nowrap text-ink/80">{src.dept_id}</td>
-                      <td className="px-3 py-1.5 font-mono text-[11px] whitespace-nowrap text-ink/80">{src.salary.toLocaleString()}</td>
+                    <tr
+                      key={src.emp_id}
+                      className={cn(
+                        'border-b last:border-0',
+                        state === 'updated' ? 'bg-amber/10' : 'bg-green/10'
+                      )}
+                    >
+                      <td className="text-ink/80 px-3 py-1.5 font-mono text-[11px] whitespace-nowrap">
+                        {src.emp_id}
+                      </td>
+                      <td className="text-ink/80 px-3 py-1.5 font-mono text-[11px] whitespace-nowrap">
+                        {src.first_name}
+                      </td>
+                      <td className="text-ink/80 px-3 py-1.5 font-mono text-[11px] whitespace-nowrap">
+                        {src.dept_id}
+                      </td>
+                      <td className="text-ink/80 px-3 py-1.5 font-mono text-[11px] whitespace-nowrap">
+                        {src.salary.toLocaleString()}
+                      </td>
                     </tr>
                   )
                 })}
@@ -339,39 +433,69 @@ function MergeTables({ t }: { t: typeof T['ko'] }) {
         </div>
 
         {/* RESULT */}
-        <div className="p-4 border-t lg:border-t-0">
-          <div className="mb-2 flex items-center gap-1.5 font-mono text-[10px] font-bold uppercase tracking-widest">
+        <div className="border-t p-4 lg:border-t-0">
+          <div className="mb-2 flex items-center gap-1.5 font-mono text-[10px] font-bold tracking-widest uppercase">
             <span className="text-ink/70">{t.resultTable}</span>
           </div>
-          <div className="overflow-x-auto rounded-card border-2 border-amber/30">
+          <div className="rounded-card border-amber/30 overflow-x-auto border-2">
             <table className="w-full text-xs">
               <MergeTableHeader extraCol="status" />
               <tbody>
                 {RESULT_ROWS.map((row) => {
                   const state = MERGE_ROW_STATES[row.emp_id]
-                  const orig = INITIAL_TARGET.find((r) => r.emp_id === row.emp_id)
+                  const orig = INITIAL_TARGET.find(
+                    (r) => r.emp_id === row.emp_id
+                  )
                   return (
-                    <tr key={row.emp_id} className={cn(
-                      'border-b last:border-0',
-                      state === 'updated'  ? 'bg-amber/10' :
-                      state === 'inserted' ? 'bg-green/10'   : '',
-                    )}>
-                      <td className="px-3 py-1.5 font-mono text-[11px] whitespace-nowrap text-ink/80">{row.emp_id}</td>
-                      <td className="px-3 py-1.5 font-mono text-[11px] whitespace-nowrap text-ink/80">{row.first_name}</td>
-                      <td className="px-3 py-1.5 font-mono text-[11px] whitespace-nowrap text-ink/80">{row.dept_id}</td>
+                    <tr
+                      key={row.emp_id}
+                      className={cn(
+                        'border-b last:border-0',
+                        state === 'updated'
+                          ? 'bg-amber/10'
+                          : state === 'inserted'
+                            ? 'bg-green/10'
+                            : ''
+                      )}
+                    >
+                      <td className="text-ink/80 px-3 py-1.5 font-mono text-[11px] whitespace-nowrap">
+                        {row.emp_id}
+                      </td>
+                      <td className="text-ink/80 px-3 py-1.5 font-mono text-[11px] whitespace-nowrap">
+                        {row.first_name}
+                      </td>
+                      <td className="text-ink/80 px-3 py-1.5 font-mono text-[11px] whitespace-nowrap">
+                        {row.dept_id}
+                      </td>
                       <td className="px-3 py-1.5 font-mono text-[11px] whitespace-nowrap">
-                        {state === 'updated' && orig && orig.salary !== row.salary ? (
+                        {state === 'updated' &&
+                        orig &&
+                        orig.salary !== row.salary ? (
                           <span>
-                            <span className="text-red line-through mr-1 text-[10px]">{orig.salary.toLocaleString()}</span>
-                            <span className="font-bold text-amber">{row.salary.toLocaleString()}</span>
+                            <span className="text-red mr-1 text-[10px] line-through">
+                              {orig.salary.toLocaleString()}
+                            </span>
+                            <span className="text-amber font-bold">
+                              {row.salary.toLocaleString()}
+                            </span>
                           </span>
                         ) : (
-                          <span className="text-ink/80">{row.salary.toLocaleString()}</span>
+                          <span className="text-ink/80">
+                            {row.salary.toLocaleString()}
+                          </span>
                         )}
                       </td>
                       <td className="px-3 py-1.5 font-mono text-[11px] whitespace-nowrap">
-                        {state === 'updated'  && <span className="rounded bg-amber/20 px-1.5 py-0.5 text-[10px] font-bold text-amber">UPDATED</span>}
-                        {state === 'inserted' && <span className="rounded bg-green/20 px-1.5 py-0.5 text-[10px] font-bold text-green">INSERTED</span>}
+                        {state === 'updated' && (
+                          <span className="bg-amber/20 text-amber rounded px-1.5 py-0.5 text-[10px] font-bold">
+                            UPDATED
+                          </span>
+                        )}
+                        {state === 'inserted' && (
+                          <span className="bg-green/20 text-green rounded px-1.5 py-0.5 text-[10px] font-bold">
+                            INSERTED
+                          </span>
+                        )}
                         {!state && <span className="text-ink-2/40">—</span>}
                       </td>
                     </tr>
@@ -390,38 +514,39 @@ function MergeTables({ t }: { t: typeof T['ko'] }) {
 
 const EX2_SOURCE_COLS = ['emp_id', 'dept_id', 'salary'] as const
 
-function MergeTables2({ t }: { t: typeof T['ko'] }) {
+function MergeTables2({ t }: { t: (typeof T)['ko'] }) {
   const deletedRow = EX2_TARGET.find((r) => r.emp_id === 102)!
   const deletedSrc = EX2_SOURCE.find((s) => s.emp_id === 102)!
 
   return (
-    <div className="mb-6 rounded-panel border bg-rail overflow-hidden">
+    <div className="rounded-panel bg-rail mb-6 overflow-hidden border">
       {/* Legend */}
-      <div className="border-b bg-rail px-4 py-2.5 flex flex-wrap items-center gap-x-3 gap-y-1.5">
+      <div className="bg-rail flex flex-wrap items-center gap-x-3 gap-y-1.5 border-b px-4 py-2.5">
         <span className="flex items-center gap-1.5 font-mono text-[10px]">
-          <span className="inline-block h-2.5 w-2.5 rounded-chip bg-amber/10 border border-amber/30" />
+          <span className="rounded-chip bg-amber/10 border-amber/30 inline-block h-2.5 w-2.5 border" />
           <span className="text-amber font-bold">{t.example2MatchKeep}</span>
         </span>
         <span className="flex items-center gap-1.5 font-mono text-[10px]">
-          <span className="inline-block h-2.5 w-2.5 rounded-chip bg-red/10 border border-red/30" />
+          <span className="rounded-chip bg-red/10 border-red/30 inline-block h-2.5 w-2.5 border" />
           <span className="text-red font-bold">{t.example2MatchDesc}</span>
         </span>
         <span className="flex items-center gap-1.5 font-mono text-[10px]">
-          <span className="inline-block h-2.5 w-2.5 rounded-chip bg-rail border border-line" />
+          <span className="rounded-chip bg-rail border-line inline-block h-2.5 w-2.5 border" />
           <span className="text-ink-2 font-bold">{t.example2NoSource}</span>
         </span>
       </div>
 
       {/* 3-panel layout: TARGET | SOURCE | RESULT */}
       <div className="grid grid-cols-1 gap-0 lg:grid-cols-3 lg:divide-x">
-
         {/* TARGET */}
         <div className="p-4">
-          <div className="mb-2 flex items-center gap-1.5 font-mono text-[10px] font-bold uppercase tracking-widest">
+          <div className="mb-2 flex items-center gap-1.5 font-mono text-[10px] font-bold tracking-widest uppercase">
             <span className="text-ink/70">{t.targetTable}</span>
-            <span className="rounded bg-amber/15 px-1.5 py-0.5 text-[9px] font-bold text-amber normal-case tracking-normal">{t.targetLabel}</span>
+            <span className="bg-amber/15 text-amber rounded px-1.5 py-0.5 text-[9px] font-bold tracking-normal normal-case">
+              {t.targetLabel}
+            </span>
           </div>
-          <div className="overflow-x-auto rounded-card border-2 border-amber/30">
+          <div className="rounded-card border-amber/30 overflow-x-auto border-2">
             <table className="w-full text-xs">
               <MergeTableHeader />
               <tbody>
@@ -430,15 +555,29 @@ function MergeTables2({ t }: { t: typeof T['ko'] }) {
                   const willDelete = src?.dept_id === 99
                   const willUpdate = !!src && !willDelete
                   return (
-                    <tr key={row.emp_id} className={cn(
-                      'border-b last:border-0',
-                      willDelete ? 'bg-red/10' :
-                      willUpdate ? 'bg-amber/10' : '',
-                    )}>
-                      <td className="px-3 py-1.5 font-mono text-[11px] whitespace-nowrap text-ink/80">{row.emp_id}</td>
-                      <td className="px-3 py-1.5 font-mono text-[11px] whitespace-nowrap text-ink/80">{row.first_name}</td>
-                      <td className="px-3 py-1.5 font-mono text-[11px] whitespace-nowrap text-ink/80">{row.dept_id}</td>
-                      <td className="px-3 py-1.5 font-mono text-[11px] whitespace-nowrap text-ink/80">{row.salary.toLocaleString()}</td>
+                    <tr
+                      key={row.emp_id}
+                      className={cn(
+                        'border-b last:border-0',
+                        willDelete
+                          ? 'bg-red/10'
+                          : willUpdate
+                            ? 'bg-amber/10'
+                            : ''
+                      )}
+                    >
+                      <td className="text-ink/80 px-3 py-1.5 font-mono text-[11px] whitespace-nowrap">
+                        {row.emp_id}
+                      </td>
+                      <td className="text-ink/80 px-3 py-1.5 font-mono text-[11px] whitespace-nowrap">
+                        {row.first_name}
+                      </td>
+                      <td className="text-ink/80 px-3 py-1.5 font-mono text-[11px] whitespace-nowrap">
+                        {row.dept_id}
+                      </td>
+                      <td className="text-ink/80 px-3 py-1.5 font-mono text-[11px] whitespace-nowrap">
+                        {row.salary.toLocaleString()}
+                      </td>
                     </tr>
                   )
                 })}
@@ -448,24 +587,33 @@ function MergeTables2({ t }: { t: typeof T['ko'] }) {
         </div>
 
         {/* SOURCE */}
-        <div className="p-4 border-t lg:border-t-0">
-          <div className="mb-2 font-mono text-[10px] font-bold uppercase tracking-widest text-ink-2">
+        <div className="border-t p-4 lg:border-t-0">
+          <div className="text-ink-2 mb-2 font-mono text-[10px] font-bold tracking-widest uppercase">
             {t.sourceTable}
           </div>
-          <div className="overflow-x-auto rounded-card border">
+          <div className="rounded-card overflow-x-auto border">
             <table className="w-full text-xs">
               <MergeTableHeader cols={EX2_SOURCE_COLS} />
               <tbody>
                 {EX2_SOURCE.map((src) => {
                   const willDelete = src.dept_id === 99
                   return (
-                    <tr key={src.emp_id} className={cn(
-                      'border-b last:border-0',
-                      willDelete ? 'bg-red/10' : 'bg-amber/10',
-                    )}>
-                      <td className="px-3 py-1.5 font-mono text-[11px] whitespace-nowrap text-ink/80">{src.emp_id}</td>
-                      <td className="px-3 py-1.5 font-mono text-[11px] whitespace-nowrap text-ink/80">{src.dept_id}</td>
-                      <td className="px-3 py-1.5 font-mono text-[11px] whitespace-nowrap text-ink/80">{src.salary.toLocaleString()}</td>
+                    <tr
+                      key={src.emp_id}
+                      className={cn(
+                        'border-b last:border-0',
+                        willDelete ? 'bg-red/10' : 'bg-amber/10'
+                      )}
+                    >
+                      <td className="text-ink/80 px-3 py-1.5 font-mono text-[11px] whitespace-nowrap">
+                        {src.emp_id}
+                      </td>
+                      <td className="text-ink/80 px-3 py-1.5 font-mono text-[11px] whitespace-nowrap">
+                        {src.dept_id}
+                      </td>
+                      <td className="text-ink/80 px-3 py-1.5 font-mono text-[11px] whitespace-nowrap">
+                        {src.salary.toLocaleString()}
+                      </td>
                     </tr>
                   )
                 })}
@@ -475,50 +623,90 @@ function MergeTables2({ t }: { t: typeof T['ko'] }) {
         </div>
 
         {/* RESULT */}
-        <div className="p-4 border-t lg:border-t-0">
-          <div className="mb-2 font-mono text-[10px] font-bold uppercase tracking-widest text-ink/70">
+        <div className="border-t p-4 lg:border-t-0">
+          <div className="text-ink/70 mb-2 font-mono text-[10px] font-bold tracking-widest uppercase">
             {t.resultTable}
           </div>
-          <div className="overflow-x-auto rounded-card border-2 border-amber/30">
+          <div className="rounded-card border-amber/30 overflow-x-auto border-2">
             <table className="w-full text-xs">
               <MergeTableHeader extraCol="status" />
               <tbody>
                 {/* deleted row with strikethrough */}
-                <tr className="border-b bg-red/10 opacity-60">
-                  <td className="px-3 py-1.5 font-mono text-[11px] whitespace-nowrap line-through text-ink/50">{deletedRow.emp_id}</td>
-                  <td className="px-3 py-1.5 font-mono text-[11px] whitespace-nowrap line-through text-ink/50">{deletedRow.first_name}</td>
-                  <td className="px-3 py-1.5 font-mono text-[11px] whitespace-nowrap">
-                    <span className="line-through text-ink/50 mr-1 text-[10px]">{deletedRow.dept_id}</span>
-                    <span className="font-bold text-red">{deletedSrc.dept_id}</span>
+                <tr className="bg-red/10 border-b opacity-60">
+                  <td className="text-ink/50 px-3 py-1.5 font-mono text-[11px] whitespace-nowrap line-through">
+                    {deletedRow.emp_id}
+                  </td>
+                  <td className="text-ink/50 px-3 py-1.5 font-mono text-[11px] whitespace-nowrap line-through">
+                    {deletedRow.first_name}
                   </td>
                   <td className="px-3 py-1.5 font-mono text-[11px] whitespace-nowrap">
-                    <span className="line-through text-ink/50 mr-1 text-[10px]">{deletedRow.salary.toLocaleString()}</span>
-                    <span className="font-bold text-red">{deletedSrc.salary.toLocaleString()}</span>
+                    <span className="text-ink/50 mr-1 text-[10px] line-through">
+                      {deletedRow.dept_id}
+                    </span>
+                    <span className="text-red font-bold">
+                      {deletedSrc.dept_id}
+                    </span>
                   </td>
                   <td className="px-3 py-1.5 font-mono text-[11px] whitespace-nowrap">
-                    <span className="rounded bg-red/20 px-1.5 py-0.5 text-[10px] font-bold text-red">DELETED</span>
+                    <span className="text-ink/50 mr-1 text-[10px] line-through">
+                      {deletedRow.salary.toLocaleString()}
+                    </span>
+                    <span className="text-red font-bold">
+                      {deletedSrc.salary.toLocaleString()}
+                    </span>
+                  </td>
+                  <td className="px-3 py-1.5 font-mono text-[11px] whitespace-nowrap">
+                    <span className="bg-red/20 text-red rounded px-1.5 py-0.5 text-[10px] font-bold">
+                      DELETED
+                    </span>
                   </td>
                 </tr>
                 {EX2_RESULT.map((row) => {
                   const orig = EX2_TARGET.find((r) => r.emp_id === row.emp_id)
                   return (
-                    <tr key={row.emp_id} className={cn('border-b last:border-0', row.state === 'updated' ? 'bg-amber/10' : '')}>
-                      <td className="px-3 py-1.5 font-mono text-[11px] whitespace-nowrap text-ink/80">{row.emp_id}</td>
-                      <td className="px-3 py-1.5 font-mono text-[11px] whitespace-nowrap text-ink/80">{row.first_name}</td>
-                      <td className="px-3 py-1.5 font-mono text-[11px] whitespace-nowrap text-ink/80">{row.dept_id}</td>
+                    <tr
+                      key={row.emp_id}
+                      className={cn(
+                        'border-b last:border-0',
+                        row.state === 'updated' ? 'bg-amber/10' : ''
+                      )}
+                    >
+                      <td className="text-ink/80 px-3 py-1.5 font-mono text-[11px] whitespace-nowrap">
+                        {row.emp_id}
+                      </td>
+                      <td className="text-ink/80 px-3 py-1.5 font-mono text-[11px] whitespace-nowrap">
+                        {row.first_name}
+                      </td>
+                      <td className="text-ink/80 px-3 py-1.5 font-mono text-[11px] whitespace-nowrap">
+                        {row.dept_id}
+                      </td>
                       <td className="px-3 py-1.5 font-mono text-[11px] whitespace-nowrap">
-                        {row.state === 'updated' && orig && orig.salary !== row.salary ? (
+                        {row.state === 'updated' &&
+                        orig &&
+                        orig.salary !== row.salary ? (
                           <span>
-                            <span className="text-red line-through mr-1 text-[10px]">{orig.salary.toLocaleString()}</span>
-                            <span className="font-bold text-amber">{row.salary.toLocaleString()}</span>
+                            <span className="text-red mr-1 text-[10px] line-through">
+                              {orig.salary.toLocaleString()}
+                            </span>
+                            <span className="text-amber font-bold">
+                              {row.salary.toLocaleString()}
+                            </span>
                           </span>
                         ) : (
-                          <span className="text-ink/80">{row.salary.toLocaleString()}</span>
+                          <span className="text-ink/80">
+                            {row.salary.toLocaleString()}
+                          </span>
                         )}
                       </td>
                       <td className="px-3 py-1.5 font-mono text-[11px] whitespace-nowrap">
-                        {row.state === 'updated'   && <span className="rounded bg-amber/20 px-1.5 py-0.5 text-[10px] font-bold text-amber">UPDATED</span>}
-                        {row.state === 'unchanged' && <span className="text-ink-2/40">—</span>}
+                        {row.state === 'updated' && (
+                          <span className="bg-amber/20 text-amber rounded px-1.5 py-0.5 text-[10px] font-bold">
+                            UPDATED
+                          </span>
+                        )}
+                        {row.state === 'unchanged' && (
+                          <span className="text-ink-2/40">—</span>
+                        )}
                       </td>
                     </tr>
                   )
@@ -532,6 +720,54 @@ function MergeTables2({ t }: { t: typeof T['ko'] }) {
   )
 }
 
+// ── SqlCard ───────────────────────────────────────────────────────────────────
+// 라벨 헤더 바 + 함몰된 코드 본문. tone 으로 정상/오류/정답 3색.
+
+const SQL_CARD_TONE = {
+  plain: { card: 'border', bar: 'bg-rail border-b', label: 'text-ink-2' },
+  error: {
+    card: 'border border-red/30',
+    bar: 'border-b border-red/30 bg-red/10',
+    label: 'text-red',
+  },
+  ok: {
+    card: 'border border-green/30',
+    bar: 'border-b border-green/30 bg-green/10',
+    label: 'text-green',
+  },
+} as const
+
+function SqlCard({
+  label = 'SQL',
+  sql,
+  tone = 'plain',
+  className,
+}: {
+  label?: string
+  sql: string
+  tone?: keyof typeof SQL_CARD_TONE
+  className?: string
+}) {
+  const c = SQL_CARD_TONE[tone]
+  return (
+    <div className={cn('rounded-panel overflow-hidden', c.card, className)}>
+      <div className={cn('px-4 py-2', c.bar)}>
+        <span
+          className={cn(
+            'font-mono text-[10px] tracking-widest uppercase',
+            c.label
+          )}
+        >
+          {label}
+        </span>
+      </div>
+      <div className="bg-code-bg p-4">
+        <SqlHighlight sql={sql} bare />
+      </div>
+    </div>
+  )
+}
+
 // ── Main component ─────────────────────────────────────────────────────────────
 
 export function MergeSection() {
@@ -540,13 +776,17 @@ export function MergeSection() {
 
   return (
     <PageContainer className="max-w-5xl">
-      <ChapterTitle icon={<IconGitMerge size={36} color="var(--color-red)" stroke={1.5} />} title={t.chapterTitle} subtitle={t.chapterSubtitle} />
+      <ChapterTitle
+        icon={<IconGitMerge size={36} color="var(--color-red)" stroke={1.5} />}
+        title={t.chapterTitle}
+        subtitle={t.chapterSubtitle}
+      />
 
       <InfoBox variant="usage">
-        <div className="flex flex-col gap-2 mt-1">
+        <div className="mt-1 flex flex-col gap-2">
           {t.usecases.map((u, i) => (
-            <div key={i} className="flex gap-2 items-start">
-              <span className="text-base shrink-0">{u.icon}</span>
+            <div key={i} className="flex items-start gap-2">
+              <span className="shrink-0 text-base">{u.icon}</span>
               <div>
                 <span className="font-bold">{u.title}</span>
                 <span className="ml-1 text-current/80">— {u.desc}</span>
@@ -560,14 +800,7 @@ export function MergeSection() {
 
       {/* Basic structure */}
       <SectionTitle>{t.structureTitle}</SectionTitle>
-      <div className="mb-6 rounded-panel border overflow-hidden">
-        <div className="border-b px-4 py-2">
-          <span className="font-mono text-[10px] text-ink-2 uppercase tracking-widest">SQL</span>
-        </div>
-        <div className="p-4">
-          <SqlHighlight sql={STRUCTURE_SQL} />
-        </div>
-      </div>
+      <SqlCard sql={STRUCTURE_SQL} className="mb-6" />
 
       {/* WHEN MATCHED */}
       <SubTitle>{t.matchedTitle}</SubTitle>
@@ -581,14 +814,7 @@ export function MergeSection() {
 
       {/* Example query 1 */}
       <SectionTitle>{t.exampleTitle}</SectionTitle>
-      <div className="mb-6 rounded-panel border overflow-hidden">
-        <div className="border-b px-4 py-2">
-          <span className="font-mono text-[10px] text-ink-2 uppercase tracking-widest">SQL</span>
-        </div>
-        <div className="p-4">
-          <SqlHighlight sql={MERGE_SQL} />
-        </div>
-      </div>
+      <SqlCard sql={MERGE_SQL} className="mb-6" />
       <MergeTables t={t} />
 
       <Divider />
@@ -596,14 +822,7 @@ export function MergeSection() {
       {/* Example query 2 — UPDATE + DELETE, WHEN MATCHED only */}
       <SectionTitle>{t.example2Title}</SectionTitle>
       <Prose>{t.example2Desc}</Prose>
-      <div className="mb-6 rounded-panel border overflow-hidden">
-        <div className="border-b px-4 py-2">
-          <span className="font-mono text-[10px] text-ink-2 uppercase tracking-widest">SQL</span>
-        </div>
-        <div className="p-4">
-          <SqlHighlight sql={MERGE2_SQL} />
-        </div>
-      </div>
+      <SqlCard sql={MERGE2_SQL} className="mb-6" />
       <MergeTables2 t={t} />
 
       <Divider />
@@ -615,35 +834,35 @@ export function MergeSection() {
         <span>{t.onColumnWhy}</span>
       </InfoBox>
 
-      <div className="mb-3 text-[11px] font-mono font-bold text-red flex items-center gap-1.5">
-        <span className="rounded bg-red/10 px-2 py-0.5">{t.onColumnBadLabel}</span>
+      <div className="text-red mb-3 flex items-center gap-1.5 font-mono text-[11px] font-bold">
+        <span className="bg-red/10 rounded px-2 py-0.5">
+          {t.onColumnBadLabel}
+        </span>
       </div>
-      <div className="mb-5 rounded-panel border border-red/30 overflow-hidden">
-        <div className="border-b border-red/30 bg-red/10 px-4 py-2">
-          <span className="font-mono text-[10px] text-red uppercase tracking-widest">{t.sqlError}</span>
-        </div>
-        <div className="p-4">
-          <SqlHighlight sql={ON_COLUMN_BAD_SQL} />
-        </div>
-      </div>
+      <SqlCard
+        tone="error"
+        label={t.sqlError}
+        sql={ON_COLUMN_BAD_SQL}
+        className="mb-5"
+      />
 
-      <div className="mb-3 text-[11px] font-mono font-bold text-green flex items-center gap-1.5">
-        <span className="rounded bg-green/10 px-2 py-0.5">{t.onColumnGoodLabel}</span>
+      <div className="text-green mb-3 flex items-center gap-1.5 font-mono text-[11px] font-bold">
+        <span className="bg-green/10 rounded px-2 py-0.5">
+          {t.onColumnGoodLabel}
+        </span>
       </div>
-      <div className="mb-6 rounded-panel border border-green/30 overflow-hidden">
-        <div className="border-b border-green/30 bg-green/10 px-4 py-2">
-          <span className="font-mono text-[10px] text-green uppercase tracking-widest">{t.sqlCorrect}</span>
-        </div>
-        <div className="p-4">
-          <SqlHighlight sql={ON_COLUMN_GOOD_SQL} />
-        </div>
-      </div>
+      <SqlCard
+        tone="ok"
+        label={t.sqlCorrect}
+        sql={ON_COLUMN_GOOD_SQL}
+        className="mb-6"
+      />
 
       <Divider />
 
       {/* Notes */}
       <InfoBox variant="warning">
-        <ul className="flex flex-col gap-1 mt-1 list-disc list-inside">
+        <ul className="mt-1 flex list-inside list-disc flex-col gap-1">
           {t.noteItems.map((item, i) => (
             <li key={i}>{item}</li>
           ))}

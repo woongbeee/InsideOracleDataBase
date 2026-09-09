@@ -1,11 +1,17 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
-import { PageContainer, ChapterTitle, SectionTitle, Prose, Divider } from '../../shared'
+import {
+  PageContainer,
+  ChapterTitle,
+  SectionTitle,
+  Prose,
+  Divider,
+} from '../../shared'
 import { IconChartBar } from '@tabler/icons-react'
 import { SqlHighlight } from './SqlHighlight'
 import { useSimulationStore } from '@/store/simulationStore'
-import { EMPLOYEES } from './shared'
+import { EMPLOYEES } from '@/data'
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -62,10 +68,14 @@ const EMP_ROWS = _sampleEmps.map((e) => [
 
 function rowNumberPartitioned(): (string | null)[][] {
   const byDept: Record<string, typeof EMP_ROWS> = {}
-  for (const r of EMP_ROWS) { (byDept[r[2]] ??= []).push(r) }
+  for (const r of EMP_ROWS) {
+    ;(byDept[r[2]] ??= []).push(r)
+  }
   const result: (string | null)[][] = []
   for (const dept of _deptKeys) {
-    const sorted = [...(byDept[dept] ?? [])].sort((a, b) => Number(b[3]) - Number(a[3]))
+    const sorted = [...(byDept[dept] ?? [])].sort(
+      (a, b) => Number(b[3]) - Number(a[3])
+    )
     sorted.forEach((r, i) => result.push([r[1], r[2], r[3], String(i + 1)]))
   }
   return result
@@ -119,7 +129,16 @@ function aggWindowRows(): (string | null)[][] {
     const mx = Math.max(...rows.map((r) => Number(r[3])))
     const mn = Math.min(...rows.map((r) => Number(r[3])))
     for (const r of rows)
-      result.push([r[1], r[2], r[3], String(total), String(avg), String(cnt), String(mx), String(mn)])
+      result.push([
+        r[1],
+        r[2],
+        r[3],
+        String(total),
+        String(avg),
+        String(cnt),
+        String(mx),
+        String(mn),
+      ])
   }
   return result
 }
@@ -129,18 +148,21 @@ function firstLastValueRows(): (string | null)[][] {
   for (const r of EMP_ROWS) (deptGroups[r[2]] ??= []).push(r)
   const result: (string | null)[][] = []
   for (const dept of _deptKeys) {
-    const rows = [...(deptGroups[dept] ?? [])].sort((a, b) => Number(b[3]) - Number(a[3]))
+    const rows = [...(deptGroups[dept] ?? [])].sort(
+      (a, b) => Number(b[3]) - Number(a[3])
+    )
     const first = rows[0][3]
-    const last  = rows[rows.length - 1][3]
-    for (const r of rows)
-      result.push([r[1], r[2], r[3], first, last])
+    const last = rows[rows.length - 1][3]
+    for (const r of rows) result.push([r[1], r[2], r[3], first, last])
   }
   return result
 }
 
 // running total with SUM + ORDER BY (no explicit frame = default cumulative)
 function runningSumRows(): (string | null)[][] {
-  const rows = [...EMP_ROWS].sort((a, b) => Number(a[0]) - Number(b[0])).slice(0, 6)
+  const rows = [...EMP_ROWS]
+    .sort((a, b) => Number(a[0]) - Number(b[0]))
+    .slice(0, 6)
   let acc = 0
   return rows.map((r) => {
     acc += Number(r[3])
@@ -150,10 +172,14 @@ function runningSumRows(): (string | null)[][] {
 
 // rolling 3-row average: ROWS BETWEEN 1 PRECEDING AND 1 FOLLOWING
 function rollingAvgRows(): (string | null)[][] {
-  const rows = [...EMP_ROWS].sort((a, b) => Number(a[0]) - Number(b[0])).slice(0, 6)
+  const rows = [...EMP_ROWS]
+    .sort((a, b) => Number(a[0]) - Number(b[0]))
+    .slice(0, 6)
   return rows.map((r, i) => {
     const window = rows.slice(Math.max(0, i - 1), i + 2)
-    const avg = Math.round(window.reduce((s, w) => s + Number(w[3]), 0) / window.length)
+    const avg = Math.round(
+      window.reduce((s, w) => s + Number(w[3]), 0) / window.length
+    )
     return [r[1], r[3], String(avg)]
   })
 }
@@ -169,7 +195,9 @@ function rowsVsRangeRows(): (string | null)[][] {
     const rowsWindow = rows.slice(Math.max(0, i - 2), i + 1)
     const rowsSum = rowsWindow.reduce((s, w) => s + Number(w[3]), 0)
     // RANGE BETWEEN 1000 PRECEDING AND CURRENT ROW: salary >= sal-1000 인 행~현재
-    const rangeWindow = rows.filter((w) => Number(w[3]) >= sal - 1000 && Number(w[3]) <= sal)
+    const rangeWindow = rows.filter(
+      (w) => Number(w[3]) >= sal - 1000 && Number(w[3]) <= sal
+    )
     const rangeSum = rangeWindow.reduce((s, w) => s + Number(w[3]), 0)
     return [r[1], r[3], String(rowsSum), String(rangeSum)]
   })
@@ -190,10 +218,11 @@ function nthValueRows(): (string | null)[][] {
   for (const r of EMP_ROWS) (deptGroups[r[2]] ??= []).push(r)
   const result: (string | null)[][] = []
   for (const dept of _deptKeys) {
-    const rows = [...(deptGroups[dept] ?? [])].sort((a, b) => Number(b[3]) - Number(a[3]))
+    const rows = [...(deptGroups[dept] ?? [])].sort(
+      (a, b) => Number(b[3]) - Number(a[3])
+    )
     const second = rows.length >= 2 ? rows[1][3] : null
-    for (const r of rows)
-      result.push([r[1], r[2], r[3], second])
+    for (const r of rows) result.push([r[1], r[2], r[3], second])
   }
   return result
 }
@@ -293,7 +322,7 @@ const FUNC_ITEMS: FuncItem[] = [
     },
     queryDesc: {
       ko: 'emp_id 순서로 정렬한 뒤, 각 직원의 이전 직원 급여(prev_sal)와 현재 급여와의 차이(diff)를 한 행에서 조회합니다. 첫 번째 직원은 이전 행이 없으므로 prev_sal과 diff가 NULL입니다.',
-      en: 'Sorted by emp_id, shows each employee\'s previous employee\'s salary (prev_sal) and the difference from the current salary (diff) in the same row. The first employee has no prior row, so prev_sal and diff are NULL.',
+      en: "Sorted by emp_id, shows each employee's previous employee's salary (prev_sal) and the difference from the current salary (diff) in the same row. The first employee has no prior row, so prev_sal and diff are NULL.",
     },
     example:
       'SELECT first_name, salary,\n       LAG(salary) OVER\n         (ORDER BY emp_id) AS prev_sal,\n       salary - LAG(salary) OVER\n         (ORDER BY emp_id) AS diff\nFROM   employees',
@@ -313,7 +342,7 @@ const FUNC_ITEMS: FuncItem[] = [
     },
     queryDesc: {
       ko: 'emp_id 순서로 정렬한 뒤, 각 직원의 다음 직원 급여(next_sal)와 현재 급여와의 차이(diff)를 한 행에서 조회합니다. 마지막 직원은 다음 행이 없으므로 next_sal과 diff가 NULL입니다.',
-      en: 'Sorted by emp_id, shows each employee\'s next employee\'s salary (next_sal) and the difference from the current salary (diff) in the same row. The last employee has no following row, so next_sal and diff are NULL.',
+      en: "Sorted by emp_id, shows each employee's next employee's salary (next_sal) and the difference from the current salary (diff) in the same row. The last employee has no following row, so next_sal and diff are NULL.",
     },
     example:
       'SELECT first_name, salary,\n       LEAD(salary) OVER\n         (ORDER BY emp_id) AS next_sal,\n       LEAD(salary) OVER\n         (ORDER BY emp_id) - salary AS diff\nFROM   employees',
@@ -337,11 +366,20 @@ const FUNC_ITEMS: FuncItem[] = [
     },
     example:
       'SELECT first_name, dept_id, salary,\n       SUM(salary)   OVER (PARTITION BY dept_id) AS dept_sum,\n       ROUND(\n         AVG(salary)  OVER (PARTITION BY dept_id)\n       )                                        AS dept_avg,\n       COUNT(*)      OVER (PARTITION BY dept_id) AS dept_cnt,\n       MAX(salary)   OVER (PARTITION BY dept_id) AS dept_max,\n       MIN(salary)   OVER (PARTITION BY dept_id) AS dept_min\nFROM   employees\nORDER BY dept_id, salary DESC',
-    resultHeaders: ['first_name', 'dept_id', 'salary', 'dept_sum', 'dept_avg', 'dept_cnt', 'dept_max', 'dept_min'],
+    resultHeaders: [
+      'first_name',
+      'dept_id',
+      'salary',
+      'dept_sum',
+      'dept_avg',
+      'dept_cnt',
+      'dept_max',
+      'dept_min',
+    ],
     resultRows: aggWindowRows(),
     note: {
       ko: '집계 윈도우 함수는 서브쿼리 없이 그룹 집계와 개별 행 데이터를 한 번에 조회할 수 있습니다. salary / SUM(salary) OVER (PARTITION BY dept_id) 패턴으로 부서 내 급여 비중도 계산할 수 있습니다.',
-      en: 'Aggregate window functions let you fetch group totals and individual row data in a single query without subqueries. The pattern salary / SUM(salary) OVER (PARTITION BY dept_id) also computes each employee\'s share of the department payroll.',
+      en: "Aggregate window functions let you fetch group totals and individual row data in a single query without subqueries. The pattern salary / SUM(salary) OVER (PARTITION BY dept_id) also computes each employee's share of the department payroll.",
     },
   },
   {
@@ -389,11 +427,11 @@ const FUNC_ITEMS: FuncItem[] = [
     signature: 'CUME_DIST() OVER ([PARTITION BY …] ORDER BY …)',
     desc: {
       ko: '현재 행의 값 이하인 행이 전체에서 차지하는 비율을 반환합니다. 계산식은 (현재 행 이하인 행 수) / (전체 행 수)이며, 결과는 0 초과 1 이하의 값입니다. 동일한 값을 가진 행들은 같은 CUME_DIST 값을 공유합니다.',
-      en: 'Returns the proportion of rows with a value less than or equal to the current row\'s value. Formula: (number of rows ≤ current value) / (total rows). Result is in the range (0, 1]. Rows with equal values share the same CUME_DIST.',
+      en: "Returns the proportion of rows with a value less than or equal to the current row's value. Formula: (number of rows ≤ current value) / (total rows). Result is in the range (0, 1]. Rows with equal values share the same CUME_DIST.",
     },
     queryDesc: {
       ko: '전체 직원을 급여 오름차순으로 정렬해 각 직원의 누적 분포 비율을 계산합니다. 예를 들어 CUME_DIST = 0.5라면 해당 직원보다 급여가 낮거나 같은 직원이 전체의 50%라는 의미입니다.',
-      en: 'Sorts all employees by salary ascending and computes the cumulative distribution. A CUME_DIST of 0.5 means 50% of employees have a salary less than or equal to this employee\'s salary.',
+      en: "Sorts all employees by salary ascending and computes the cumulative distribution. A CUME_DIST of 0.5 means 50% of employees have a salary less than or equal to this employee's salary.",
     },
     example:
       'SELECT first_name, salary,\n       ROUND(\n         CUME_DIST() OVER\n           (ORDER BY salary)\n       , 4) AS cume_dist\nFROM   employees\nORDER BY salary',
@@ -413,7 +451,7 @@ const FUNC_ITEMS: FuncItem[] = [
     },
     queryDesc: {
       ko: '전체 직원을 급여 오름차순으로 정렬해 각 직원의 상대적 순위 비율을 계산합니다. 0에 가까울수록 하위권, 1에 가까울수록 상위권에 해당합니다.',
-      en: 'Sorts all employees by salary ascending and computes each employee\'s relative rank. Values closer to 0 are in the lower range; values closer to 1 are at the top.',
+      en: "Sorts all employees by salary ascending and computes each employee's relative rank. Values closer to 0 are in the lower range; values closer to 1 are at the top.",
     },
     example:
       'SELECT first_name, salary,\n       ROUND(\n         PERCENT_RANK() OVER\n           (ORDER BY salary)\n       , 4) AS pct_rank\nFROM   employees\nORDER BY salary',
@@ -482,7 +520,13 @@ const FRAME_ITEMS: FrameFuncItem[] = [
     },
     example:
       'SELECT first_name, dept_id, salary,\n       LAST_VALUE(salary) OVER\n         (PARTITION BY dept_id\n          ORDER BY salary DESC\n          ROWS BETWEEN UNBOUNDED PRECEDING\n                   AND UNBOUNDED FOLLOWING) AS bottom_salary,\n       SUM(salary) OVER\n         (PARTITION BY dept_id\n          ROWS BETWEEN UNBOUNDED PRECEDING\n                   AND UNBOUNDED FOLLOWING) AS dept_total\nFROM   employees\nORDER BY dept_id, salary DESC',
-    resultHeaders: ['first_name', 'dept_id', 'salary', 'top_salary', 'bottom_salary'],
+    resultHeaders: [
+      'first_name',
+      'dept_id',
+      'salary',
+      'top_salary',
+      'bottom_salary',
+    ],
     resultRows: firstLastValueRows(),
     note: {
       ko: 'ORDER BY 없이 PARTITION BY만 사용하면 기본 frame이 RANGE BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING이므로 자동으로 파티션 전체를 집계합니다. ORDER BY를 추가하는 순간 기본 frame이 바뀌므로, LAST_VALUE 등 파티션 전체가 필요한 경우엔 명시적으로 지정하세요.',
@@ -533,22 +577,33 @@ const FRAME_ITEMS: FrameFuncItem[] = [
 
 // ── Color maps ─────────────────────────────────────────────────────────────
 
-const C = { bg: 'bg-rail', border: 'border-line', text: 'text-ink/80', active: 'bg-blue/10 text-blue', code: 'bg-rail border-line' }
+const C = {
+  bg: 'bg-rail',
+  border: 'border-line',
+  text: 'text-ink/80',
+  active: 'bg-blue/10 text-blue',
+}
 
 // ── ResultTable ──────────────────────────────────────────────────────────────
 
-function ResultTable({ headers, rows }: { headers: string[]; rows: (string | null)[][] }) {
+function ResultTable({
+  headers,
+  rows,
+}: {
+  headers: string[]
+  rows: (string | null)[][]
+}) {
   return (
-    <div className="overflow-x-auto rounded-card border text-xs">
+    <div className="rounded-card overflow-x-auto border text-xs">
       <table className="w-full">
         <thead>
-          <tr className="border-b bg-rail">
+          <tr className="bg-rail border-b">
             {headers.map((h, i) => (
               <th
                 key={h}
                 className={cn(
                   'px-2.5 py-1.5 text-left font-mono text-[10px] font-bold whitespace-nowrap',
-                  i === headers.length - 1 ? 'text-green' : 'text-ink-2',
+                  i === headers.length - 1 ? 'text-green' : 'text-ink-2'
                 )}
               >
                 {h}
@@ -567,9 +622,11 @@ function ResultTable({ headers, rows }: { headers: string[]; rows: (string | nul
                     key={ci}
                     className={cn(
                       'px-2.5 py-1 font-mono text-[11px] whitespace-nowrap',
-                      isNull ? 'italic text-ink-2/40' :
-                      isLast ? 'font-bold text-green'      :
-                               'text-ink/80',
+                      isNull
+                        ? 'text-ink-2/40 italic'
+                        : isLast
+                          ? 'text-green font-bold'
+                          : 'text-ink/80'
                     )}
                   >
                     {isNull ? 'NULL' : cell}
@@ -595,7 +652,10 @@ const FRAME_SUMMARY = {
       { name: 'FIRST_VALUE / LAST_VALUE / NTH_VALUE', type: '값 탐색 함수' },
     ],
     ignoredRows: [
-      { name: 'ROW_NUMBER / RANK / DENSE_RANK / PERCENT_RANK / CUME_DIST', type: '순위 함수' },
+      {
+        name: 'ROW_NUMBER / RANK / DENSE_RANK / PERCENT_RANK / CUME_DIST',
+        type: '순위 함수',
+      },
       { name: 'LAG / LEAD / NTILE', type: '탐색·분배 함수' },
     ],
     note: '순위·탐색 함수는 파티션 전체를 항상 대상으로 하므로 frame 절을 지정해도 효과가 없습니다.',
@@ -605,11 +665,20 @@ const FRAME_SUMMARY = {
     ignored: 'Frame clause ignored',
     appliedRows: [
       { name: 'SUM / AVG / COUNT / MAX / MIN', type: 'Aggregate functions' },
-      { name: 'FIRST_VALUE / LAST_VALUE / NTH_VALUE', type: 'Value navigation functions' },
+      {
+        name: 'FIRST_VALUE / LAST_VALUE / NTH_VALUE',
+        type: 'Value navigation functions',
+      },
     ],
     ignoredRows: [
-      { name: 'ROW_NUMBER / RANK / DENSE_RANK / PERCENT_RANK / CUME_DIST', type: 'Ranking functions' },
-      { name: 'LAG / LEAD / NTILE', type: 'Navigation / distribution functions' },
+      {
+        name: 'ROW_NUMBER / RANK / DENSE_RANK / PERCENT_RANK / CUME_DIST',
+        type: 'Ranking functions',
+      },
+      {
+        name: 'LAG / LEAD / NTILE',
+        type: 'Navigation / distribution functions',
+      },
     ],
     note: 'Ranking and navigation functions always operate over the full partition — specifying a frame clause has no effect on them.',
   },
@@ -620,16 +689,25 @@ function FrameSummaryDesc({ lang }: { lang: 'ko' | 'en' }) {
   return (
     <div className="flex flex-col gap-3">
       {/* Frame 적용 */}
-      <div className="overflow-hidden rounded-panel border border-green/30">
+      <div className="rounded-panel border-green/30 overflow-hidden border">
         <div className="bg-green/5 px-4 py-2">
-          <span className="font-mono text-[11px] font-bold text-green">✓ {d.applied}</span>
+          <span className="text-green font-mono text-[11px] font-bold">
+            ✓ {d.applied}
+          </span>
         </div>
         <table className="w-full">
           <tbody>
             {d.appliedRows.map((r) => (
-              <tr key={r.name} className="border-t border-green/30 last:border-0">
-                <td className="px-4 py-2 font-mono text-[12px] font-bold text-green">{r.name}</td>
-                <td className="px-4 py-2 text-right text-[11px] text-green">{r.type}</td>
+              <tr
+                key={r.name}
+                className="border-green/30 border-t last:border-0"
+              >
+                <td className="text-green px-4 py-2 font-mono text-[12px] font-bold">
+                  {r.name}
+                </td>
+                <td className="text-green px-4 py-2 text-right text-[11px]">
+                  {r.type}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -637,23 +715,29 @@ function FrameSummaryDesc({ lang }: { lang: 'ko' | 'en' }) {
       </div>
 
       {/* Frame 무시 */}
-      <div className="overflow-hidden rounded-panel border border-red/30">
+      <div className="rounded-panel border-red/30 overflow-hidden border">
         <div className="bg-red/5 px-4 py-2">
-          <span className="font-mono text-[11px] font-bold text-red">✗ {d.ignored}</span>
+          <span className="text-red font-mono text-[11px] font-bold">
+            ✗ {d.ignored}
+          </span>
         </div>
         <table className="w-full">
           <tbody>
             {d.ignoredRows.map((r) => (
-              <tr key={r.name} className="border-t border-red/30 last:border-0">
-                <td className="px-4 py-2 font-mono text-[12px] font-bold text-red">{r.name}</td>
-                <td className="px-4 py-2 text-right text-[11px] text-red">{r.type}</td>
+              <tr key={r.name} className="border-red/30 border-t last:border-0">
+                <td className="text-red px-4 py-2 font-mono text-[12px] font-bold">
+                  {r.name}
+                </td>
+                <td className="text-red px-4 py-2 text-right text-[11px]">
+                  {r.type}
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
 
-      <p className="text-xs leading-relaxed text-ink-2">{d.note}</p>
+      <p className="text-ink-2 text-xs leading-relaxed">{d.note}</p>
     </div>
   )
 }
@@ -679,35 +763,48 @@ function DetailPanel({
         transition={{ duration: 0.18 }}
         className="flex flex-col gap-4"
       >
-        <div className={cn('rounded-panel border px-4 py-3', C.bg, C.border, C.text)}>
-          <div className="mb-1 font-mono text-[10px] font-bold uppercase tracking-wider opacity-60">
+        <div
+          className={cn(
+            'rounded-panel border px-4 py-3',
+            C.bg,
+            C.border,
+            C.text
+          )}
+        >
+          <div className="mb-1 font-mono text-[10px] font-bold tracking-wider uppercase opacity-60">
             {labels.categoryLabel}
           </div>
           <div className="font-mono text-xl font-black">{item.name}</div>
-          <div className={cn('mt-1.5 inline-block rounded border px-2 py-0.5 font-mono text-[11px]', C.active)}>
+          <div
+            className={cn(
+              'mt-1.5 inline-block rounded border px-2 py-0.5 font-mono text-[11px]',
+              C.active
+            )}
+          >
             {item.signature}
           </div>
         </div>
 
-        <div className="rounded-panel border bg-paper px-4 py-3">
-          {item.name === 'Frame 적용 함수 정리'
-            ? <FrameSummaryDesc lang={lang} />
-            : <Prose>{item.desc[lang]}</Prose>
-          }
+        <div className="rounded-panel bg-paper border px-4 py-3">
+          {item.name === 'Frame 적용 함수 정리' ? (
+            <FrameSummaryDesc lang={lang} />
+          ) : (
+            <Prose>{item.desc[lang]}</Prose>
+          )}
         </div>
 
         <div>
-          <p className="mb-1.5 font-mono text-[11px] font-bold uppercase tracking-wider text-ink-2">
+          <p className="text-ink-2 mb-1.5 font-mono text-[11px] font-bold tracking-wider uppercase">
             {labels.exampleQuery}
           </p>
-          <p className="mb-2 text-xs leading-relaxed text-ink/70">{item.queryDesc[lang]}</p>
-          <div className={cn('rounded-panel border px-4 py-3', C.code)}>
-            <SqlHighlight sql={item.example} />
-          </div>
+          <p className="text-ink/70 mb-2 text-xs leading-relaxed">
+            {item.queryDesc[lang]}
+          </p>
+          <SqlHighlight sql={item.example} />
         </div>
 
         <div>
-          <p className="mb-2 font-mono text-[11px] font-bold uppercase tracking-wider text-ink-2">
+          <p className="text-ink-2 mb-2 font-mono text-[11px] font-bold tracking-wider uppercase">
             {labels.result}
           </p>
           <ResultTable headers={item.resultHeaders} rows={item.resultRows} />
@@ -716,8 +813,16 @@ function DetailPanel({
         {item.note && (
           <>
             <Divider />
-            <div className={cn('rounded-panel border px-4 py-3 text-xs leading-relaxed', C.bg, C.border, C.text)}>
-              <span className="mr-1.5 font-bold">💡</span>{item.note[lang]}
+            <div
+              className={cn(
+                'rounded-panel border px-4 py-3 text-xs leading-relaxed',
+                C.bg,
+                C.border,
+                C.text
+              )}
+            >
+              <span className="mr-1.5 font-bold">💡</span>
+              {item.note[lang]}
             </div>
           </>
         )}
@@ -731,11 +836,14 @@ function DetailPanel({
 const T = {
   ko: {
     chapterTitle: '윈도우 함수',
-    chapterSubtitle: '행을 그룹화하지 않고도 집계·순위·이동 참조가 가능한 윈도우 함수(OVER 절)를 알아봅니다.',
+    chapterSubtitle:
+      '행을 그룹화하지 않고도 집계·순위·이동 참조가 가능한 윈도우 함수(OVER 절)를 알아봅니다.',
     part1Title: 'Part 1 — 윈도우 함수 소개',
-    part1Desc: '윈도우 함수는 OVER 절을 사용합니다. PARTITION BY로 파티션(그룹)을 나누고, ORDER BY로 파티션 내 정렬 기준을 정합니다. GROUP BY와 달리 원본 행이 그대로 유지됩니다.',
+    part1Desc:
+      '윈도우 함수는 OVER 절을 사용합니다. PARTITION BY로 파티션(그룹)을 나누고, ORDER BY로 파티션 내 정렬 기준을 정합니다. GROUP BY와 달리 원본 행이 그대로 유지됩니다.',
     part2Title: 'Part 2 — Frame 절 심화',
-    part2Desc: 'Frame 절은 현재 행을 기준으로 집계에 포함할 행의 범위를 지정합니다. ROWS는 물리적 행 번호 기준, RANGE는 ORDER BY 컬럼의 값 범위 기준으로 경계를 결정합니다.',
+    part2Desc:
+      'Frame 절은 현재 행을 기준으로 집계에 포함할 행의 범위를 지정합니다. ROWS는 물리적 행 번호 기준, RANGE는 ORDER BY 컬럼의 값 범위 기준으로 경계를 결정합니다.',
     syntaxBoxLabel: '윈도우 함수 구문',
     frameBoxLabel: 'Frame 절 키워드',
     wordSectionTitle: '키워드 단어 뜻',
@@ -747,36 +855,45 @@ const T = {
       {
         word: 'PRECEDING',
         literal: '앞에 오는, 이전의',
-        meaning: '현재 행보다 앞에 위치한 행들을 가리킵니다. ORDER BY 기준으로 정렬했을 때 현재 행보다 먼저 나오는 행입니다.',
+        meaning:
+          '현재 행보다 앞에 위치한 행들을 가리킵니다. ORDER BY 기준으로 정렬했을 때 현재 행보다 먼저 나오는 행입니다.',
         example: '3 PRECEDING → 현재 행 기준 3행 앞까지',
       },
       {
         word: 'FOLLOWING',
         literal: '뒤따르는, 다음의',
-        meaning: '현재 행보다 뒤에 위치한 행들을 가리킵니다. ORDER BY 기준으로 정렬했을 때 현재 행보다 나중에 나오는 행입니다.',
+        meaning:
+          '현재 행보다 뒤에 위치한 행들을 가리킵니다. ORDER BY 기준으로 정렬했을 때 현재 행보다 나중에 나오는 행입니다.',
         example: '2 FOLLOWING → 현재 행 기준 2행 뒤까지',
       },
       {
         word: 'UNBOUNDED',
         literal: '경계가 없는, 무한한',
-        meaning: '범위에 제한을 두지 않는다는 뜻입니다. UNBOUNDED PRECEDING은 파티션의 맨 첫 행, UNBOUNDED FOLLOWING은 파티션의 맨 마지막 행을 경계로 삼습니다.',
-        example: 'UNBOUNDED PRECEDING → 파티션 첫 행부터 / UNBOUNDED FOLLOWING → 파티션 마지막 행까지',
+        meaning:
+          '범위에 제한을 두지 않는다는 뜻입니다. UNBOUNDED PRECEDING은 파티션의 맨 첫 행, UNBOUNDED FOLLOWING은 파티션의 맨 마지막 행을 경계로 삼습니다.',
+        example:
+          'UNBOUNDED PRECEDING → 파티션 첫 행부터 / UNBOUNDED FOLLOWING → 파티션 마지막 행까지',
       },
       {
         word: 'CURRENT ROW',
         literal: '현재 행',
-        meaning: '집계를 계산하는 기준이 되는 바로 그 행을 가리킵니다. ROWS 모드에서는 정확히 그 한 행, RANGE 모드에서는 ORDER BY 값이 동일한 모든 피어(peer) 행을 포함합니다.',
-        example: 'ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW → 첫 행부터 현재 행까지 누적',
+        meaning:
+          '집계를 계산하는 기준이 되는 바로 그 행을 가리킵니다. ROWS 모드에서는 정확히 그 한 행, RANGE 모드에서는 ORDER BY 값이 동일한 모든 피어(peer) 행을 포함합니다.',
+        example:
+          'ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW → 첫 행부터 현재 행까지 누적',
       },
     ],
   },
   en: {
     chapterTitle: 'Window Functions',
-    chapterSubtitle: 'Learn window functions (the OVER clause) — they enable aggregation, ranking, and row-offset lookups without collapsing rows.',
+    chapterSubtitle:
+      'Learn window functions (the OVER clause) — they enable aggregation, ranking, and row-offset lookups without collapsing rows.',
     part1Title: 'Part 1 — Window Functions Overview',
-    part1Desc: 'Window functions use the OVER clause. PARTITION BY divides rows into partitions (groups); ORDER BY defines the sort order within each partition. Unlike GROUP BY, the original rows are preserved.',
+    part1Desc:
+      'Window functions use the OVER clause. PARTITION BY divides rows into partitions (groups); ORDER BY defines the sort order within each partition. Unlike GROUP BY, the original rows are preserved.',
     part2Title: 'Part 2 — The Frame Clause',
-    part2Desc: 'The frame clause defines which rows are included in the aggregate relative to the current row. ROWS uses physical row positions; RANGE uses value-based boundaries of the ORDER BY column.',
+    part2Desc:
+      'The frame clause defines which rows are included in the aggregate relative to the current row. ROWS uses physical row positions; RANGE uses value-based boundaries of the ORDER BY column.',
     syntaxBoxLabel: 'Window Function Syntax',
     frameBoxLabel: 'Frame Clause Keywords',
     wordSectionTitle: 'What the keywords mean',
@@ -788,26 +905,32 @@ const T = {
       {
         word: 'PRECEDING',
         literal: '"coming before"',
-        meaning: 'Refers to rows that come before the current row in the ORDER BY sort order — rows that have already been "passed."',
+        meaning:
+          'Refers to rows that come before the current row in the ORDER BY sort order — rows that have already been "passed."',
         example: '3 PRECEDING → up to 3 rows before the current row',
       },
       {
         word: 'FOLLOWING',
         literal: '"coming after"',
-        meaning: 'Refers to rows that come after the current row in the ORDER BY sort order — rows that have not yet been reached.',
+        meaning:
+          'Refers to rows that come after the current row in the ORDER BY sort order — rows that have not yet been reached.',
         example: '2 FOLLOWING → up to 2 rows after the current row',
       },
       {
         word: 'UNBOUNDED',
         literal: '"without a boundary"',
-        meaning: 'Means there is no limit on how far the frame extends. UNBOUNDED PRECEDING reaches all the way to the first row of the partition; UNBOUNDED FOLLOWING reaches the last.',
-        example: 'UNBOUNDED PRECEDING → from the first row of the partition / UNBOUNDED FOLLOWING → to the last row',
+        meaning:
+          'Means there is no limit on how far the frame extends. UNBOUNDED PRECEDING reaches all the way to the first row of the partition; UNBOUNDED FOLLOWING reaches the last.',
+        example:
+          'UNBOUNDED PRECEDING → from the first row of the partition / UNBOUNDED FOLLOWING → to the last row',
       },
       {
         word: 'CURRENT ROW',
         literal: '"the row being processed right now"',
-        meaning: 'The anchor row for which the aggregate is being calculated. In ROWS mode it means exactly that one row; in RANGE mode it includes all peer rows that share the same ORDER BY value.',
-        example: 'ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW → cumulative sum from the first row to the current row',
+        meaning:
+          'The anchor row for which the aggregate is being calculated. In ROWS mode it means exactly that one row; in RANGE mode it includes all peer rows that share the same ORDER BY value.',
+        example:
+          'ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW → cumulative sum from the first row to the current row',
       },
     ],
   },
@@ -833,7 +956,9 @@ export function WindowFuncSection() {
   return (
     <PageContainer className="max-w-5xl">
       <ChapterTitle
-        icon={<IconChartBar size={36} color="var(--color-purple)" stroke={1.5} />}
+        icon={
+          <IconChartBar size={36} color="var(--color-purple)" stroke={1.5} />
+        }
         title={t.chapterTitle}
         subtitle={t.chapterSubtitle}
       />
@@ -841,20 +966,18 @@ export function WindowFuncSection() {
       {/* ── Part 1 ─────────────────────────────────────────────────────── */}
       <SectionTitle>{t.part1Title}</SectionTitle>
 
-      <div className="mb-4 flex flex-col gap-3 rounded-panel border bg-rail px-5 py-4">
+      <div className="rounded-panel bg-rail mb-4 flex flex-col gap-3 border px-5 py-4">
         <Prose>{t.part1Desc}</Prose>
         <div>
-          <p className="mb-1.5 font-mono text-[10px] font-bold uppercase tracking-wider text-ink-2">
+          <p className="text-ink-2 mb-1.5 font-mono text-[10px] font-bold tracking-wider uppercase">
             {t.syntaxBoxLabel}
           </p>
-          <div className="rounded-card border bg-paper px-4 py-3">
-            <SqlHighlight sql={SYNTAX_SQL} />
-          </div>
+          <SqlHighlight sql={SYNTAX_SQL} />
         </div>
       </div>
 
       <div className="grid grid-cols-[160px_1fr] items-start gap-4">
-        <div className="flex flex-col gap-1 rounded-panel border bg-rail p-2">
+        <div className="rounded-panel bg-rail flex flex-col gap-1 border p-2">
           {FUNC_ITEMS.map((f) => {
             const isActive = f.name === openFunc
             return (
@@ -863,7 +986,7 @@ export function WindowFuncSection() {
                 onClick={() => setOpenFunc(f.name)}
                 className={cn(
                   'rounded-card px-3 py-2 text-left font-mono text-xs font-bold transition-all',
-                  isActive ? C.active : 'text-ink-2 hover:bg-rail',
+                  isActive ? C.active : 'text-ink-2 hover:bg-rail'
                 )}
               >
                 {f.name}
@@ -875,7 +998,11 @@ export function WindowFuncSection() {
         <DetailPanel
           item={activeFunc}
           lang={lang}
-          labels={{ categoryLabel: t.categoryLabel, exampleQuery: t.exampleQuery, result: t.result }}
+          labels={{
+            categoryLabel: t.categoryLabel,
+            exampleQuery: t.exampleQuery,
+            result: t.result,
+          }}
         />
       </div>
 
@@ -884,31 +1011,34 @@ export function WindowFuncSection() {
       {/* ── Part 2 ─────────────────────────────────────────────────────── */}
       <SectionTitle>{t.part2Title}</SectionTitle>
 
-      <div className="mb-4 flex flex-col gap-3 rounded-panel border bg-rail px-5 py-4">
+      <div className="rounded-panel bg-rail mb-4 flex flex-col gap-3 border px-5 py-4">
         <Prose>{t.part2Desc}</Prose>
         <div>
-          <p className="mb-1.5 font-mono text-[10px] font-bold uppercase tracking-wider text-ink-2">
+          <p className="text-ink-2 mb-1.5 font-mono text-[10px] font-bold tracking-wider uppercase">
             {t.frameBoxLabel}
           </p>
-          <div className="rounded-card border bg-paper px-4 py-3">
-            <SqlHighlight sql={FRAME_KEYWORDS_SQL} />
-          </div>
+          <SqlHighlight sql={FRAME_KEYWORDS_SQL} />
         </div>
       </div>
 
       {/* 키워드 어원 카드 */}
-      <p className="mb-3 font-mono text-[10px] font-bold uppercase tracking-wider text-ink-2">
+      <p className="text-ink-2 mb-3 font-mono text-[10px] font-bold tracking-wider uppercase">
         {t.wordSectionTitle}
       </p>
       <div className="mb-6 grid grid-cols-2 gap-3">
         {(t.words as WordEntry[]).map((w) => (
-          <div key={w.word} className="flex flex-col gap-1.5 rounded-panel border bg-paper px-4 py-3">
+          <div
+            key={w.word}
+            className="rounded-panel bg-paper flex flex-col gap-1.5 border px-4 py-3"
+          >
             <div className="flex items-baseline gap-2">
-              <span className="font-mono text-sm font-black text-ink">{w.word}</span>
-              <span className="text-xs italic text-ink-2">{w.literal}</span>
+              <span className="text-ink font-mono text-sm font-black">
+                {w.word}
+              </span>
+              <span className="text-ink-2 text-xs italic">{w.literal}</span>
             </div>
-            <p className="text-xs leading-relaxed text-ink/80">{w.meaning}</p>
-            <div className="mt-0.5 rounded-card border bg-rail px-2.5 py-1.5 font-mono text-[11px] text-ink-2">
+            <p className="text-ink/80 text-xs leading-relaxed">{w.meaning}</p>
+            <div className="rounded-card bg-rail text-ink-2 mt-0.5 border px-2.5 py-1.5 font-mono text-[11px]">
               {w.example}
             </div>
           </div>
@@ -916,7 +1046,7 @@ export function WindowFuncSection() {
       </div>
 
       <div className="grid grid-cols-[220px_1fr] items-start gap-4">
-        <div className="flex flex-col gap-1 rounded-panel border bg-rail p-2">
+        <div className="rounded-panel bg-rail flex flex-col gap-1 border p-2">
           {FRAME_ITEMS.map((f) => {
             const isActive = f.name === openFrame
             return (
@@ -925,7 +1055,7 @@ export function WindowFuncSection() {
                 onClick={() => setOpenFrame(f.name)}
                 className={cn(
                   'rounded-card px-3 py-2 text-left font-mono text-xs font-bold transition-all',
-                  isActive ? C.active : 'text-ink-2 hover:bg-rail',
+                  isActive ? C.active : 'text-ink-2 hover:bg-rail'
                 )}
               >
                 {f.name}
@@ -937,10 +1067,13 @@ export function WindowFuncSection() {
         <DetailPanel
           item={activeFrame}
           lang={lang}
-          labels={{ categoryLabel: t.frameCategoryLabel, exampleQuery: t.exampleQuery, result: t.result }}
+          labels={{
+            categoryLabel: t.frameCategoryLabel,
+            exampleQuery: t.exampleQuery,
+            result: t.result,
+          }}
         />
       </div>
     </PageContainer>
   )
 }
-

@@ -5,7 +5,7 @@ import { PageContainer, ChapterTitle, Prose, Divider } from '../../shared'
 import { IconMathOff } from '@tabler/icons-react'
 import { SqlHighlight } from './SqlHighlight'
 import { useSimulationStore } from '@/store/simulationStore'
-import { EMPLOYEES } from './shared'
+import { EMPLOYEES } from '@/data'
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -71,9 +71,13 @@ const FUNC_ITEMS: FuncItem[] = [
       resultHeaders: ['first_name', 'dept_id', 'dept_label'],
       resultRows: EMP_ROWS.map((r) => {
         const label =
-          r[2] === '10' ? 'Engineering' :
-          r[2] === '20' ? 'Analytics'   :
-          r[2] === '30' ? 'Support'     : 'Other'
+          r[2] === '10'
+            ? 'Engineering'
+            : r[2] === '20'
+              ? 'Analytics'
+              : r[2] === '30'
+                ? 'Support'
+                : 'Other'
         return [r[1], r[2], label]
       }),
     },
@@ -93,7 +97,11 @@ const FUNC_ITEMS: FuncItem[] = [
       'SELECT first_name,\n       manager_id,\n       NVL(manager_id, 0) AS mgr\nFROM   employees',
     tables: {
       resultHeaders: ['first_name', 'manager_id', 'mgr'],
-      resultRows: EMP_ROWS.map((r) => [r[1], r[4], r[4] === 'null' ? '0' : r[4]]),
+      resultRows: EMP_ROWS.map((r) => [
+        r[1],
+        r[4],
+        r[4] === 'null' ? '0' : r[4],
+      ]),
     },
     note: {
       ko: 'expr과 replacement의 데이터 타입이 같아야 해요. 타입이 다르면 Oracle이 암묵적으로 변환하거나 오류가 발생할 수 있어요.',
@@ -111,7 +119,11 @@ const FUNC_ITEMS: FuncItem[] = [
       "SELECT first_name,\n       manager_id,\n       NVL2(manager_id, 'Member', 'Leader') AS role\nFROM   employees",
     tables: {
       resultHeaders: ['first_name', 'manager_id', 'role'],
-      resultRows: EMP_ROWS.map((r) => [r[1], r[4], r[4] === 'null' ? 'Leader' : 'Member']),
+      resultRows: EMP_ROWS.map((r) => [
+        r[1],
+        r[4],
+        r[4] === 'null' ? 'Leader' : 'Member',
+      ]),
     },
     note: {
       ko: 'NVL2는 Oracle 전용 함수예요. 표준 SQL에서는 CASE WHEN expr IS NULL THEN … ELSE … END로 동일하게 표현할 수 있어요.',
@@ -126,13 +138,13 @@ const FUNC_ITEMS: FuncItem[] = [
       en: 'Evaluates arguments left to right and returns the first non-NULL value. Returns NULL if all arguments are NULL. COALESCE is an ANSI standard function and works identically across Oracle and other databases.\n\nUnlike NVL which is limited to two arguments, COALESCE accepts any number. When you need the first valid value across multiple columns, COALESCE replaces nested NVL calls with a single, readable expression.',
     },
     example:
-      "-- 여러 fallback 컬럼 중 첫 번째 유효값 선택\nSELECT first_name,\n       manager_id,\n       dept_id,\n       COALESCE(manager_id, dept_id, 0) AS fallback_id\nFROM   employees",
+      '-- 여러 fallback 컬럼 중 첫 번째 유효값 선택\nSELECT first_name,\n       manager_id,\n       dept_id,\n       COALESCE(manager_id, dept_id, 0) AS fallback_id\nFROM   employees',
     tables: {
       resultHeaders: ['first_name', 'manager_id', 'dept_id', 'fallback_id'],
       resultRows: EMP_ROWS.map((r) => {
-        const mgr   = r[4] === 'null' ? null : r[4]
-        const dept  = r[2]
-        const fb    = mgr ?? dept ?? '0'
+        const mgr = r[4] === 'null' ? null : r[4]
+        const dept = r[2]
+        const fb = mgr ?? dept ?? '0'
         return [r[1], r[4] === 'null' ? 'null' : r[4], r[2], fb]
       }),
     },
@@ -143,20 +155,29 @@ const FUNC_ITEMS: FuncItem[] = [
   },
 ]
 
-const C = { bg: 'bg-rail', border: 'border-line', text: 'text-ink/80', active: 'bg-blue/10 text-blue', code: 'bg-rail border-line' }
+const C = {
+  bg: 'bg-rail',
+  border: 'border-line',
+  text: 'text-ink/80',
+  active: 'bg-blue/10 text-blue',
+}
 
 // ── MiniTable ───────────────────────────────────────────────────────────────
 
-function MiniTable({ headers, rows, highlightLast }: {
+function MiniTable({
+  headers,
+  rows,
+  highlightLast,
+}: {
   headers: string[]
   rows: (string | null)[][]
   highlightLast?: boolean
 }) {
   return (
-    <div className="overflow-hidden rounded-card border text-xs">
+    <div className="rounded-card overflow-hidden border text-xs">
       <table className="w-full">
         <thead>
-          <tr className="border-b bg-rail">
+          <tr className="bg-rail border-b">
             {headers.map((h, i) => (
               <th
                 key={h}
@@ -164,7 +185,7 @@ function MiniTable({ headers, rows, highlightLast }: {
                   'px-2.5 py-1.5 text-left font-mono text-[10px] font-bold',
                   highlightLast && i === headers.length - 1
                     ? 'text-blue'
-                    : 'text-ink-2',
+                    : 'text-ink-2'
                 )}
               >
                 {h}
@@ -183,9 +204,11 @@ function MiniTable({ headers, rows, highlightLast }: {
                     key={ci}
                     className={cn(
                       'px-2.5 py-1 font-mono text-[11px]',
-                      isNull      ? 'italic text-ink-2/40' :
-                      isHighlight ? 'font-bold text-blue'      :
-                                    'text-ink/80',
+                      isNull
+                        ? 'text-ink-2/40 italic'
+                        : isHighlight
+                          ? 'text-blue font-bold'
+                          : 'text-ink/80'
                     )}
                   >
                     {isNull ? 'NULL' : cell}
@@ -203,14 +226,16 @@ function MiniTable({ headers, rows, highlightLast }: {
 const T = {
   ko: {
     chapterTitle: 'NULL을 다루는 법',
-    chapterSubtitle: 'NULL 처리와 조건 분기에 자주 쓰이는 CASE WHEN, DECODE, NVL, NVL2를 알아봐요.',
+    chapterSubtitle:
+      'NULL 처리와 조건 분기에 자주 쓰이는 CASE WHEN, DECODE, NVL, NVL2를 알아봐요.',
     categoryLabel: '조건 / NULL 처리 함수',
     exampleQuery: '예시 쿼리',
     result: '실행 결과',
   },
   en: {
     chapterTitle: 'NULL 을 다루는 법',
-    chapterSubtitle: 'Learn CASE WHEN, DECODE, NVL, and NVL2 — the most-used functions for conditional logic and NULL handling in SQL.',
+    chapterSubtitle:
+      'Learn CASE WHEN, DECODE, NVL, and NVL2 — the most-used functions for conditional logic and NULL handling in SQL.',
     categoryLabel: 'Conditional / NULL Functions',
     exampleQuery: 'Example Query',
     result: 'Result',
@@ -228,14 +253,16 @@ export function NullSection() {
   return (
     <PageContainer className="max-w-5xl">
       <ChapterTitle
-        icon={<IconMathOff size={36} color="var(--color-purple)" stroke={1.5} />}
+        icon={
+          <IconMathOff size={36} color="var(--color-purple)" stroke={1.5} />
+        }
         title={t.chapterTitle}
         subtitle={t.chapterSubtitle}
       />
 
       <div className="grid grid-cols-[160px_1fr] items-start gap-4">
         {/* LEFT: 함수 목록 */}
-        <div className="flex flex-col gap-1 rounded-panel border bg-rail p-2">
+        <div className="rounded-panel bg-rail flex flex-col gap-1 border p-2">
           {FUNC_ITEMS.map((f) => {
             const isActive = f.name === openItem
             return (
@@ -244,7 +271,7 @@ export function NullSection() {
                 onClick={() => setOpenItem(f.name)}
                 className={cn(
                   'rounded-card px-3 py-2 text-left font-mono text-xs font-bold transition-all',
-                  isActive ? C.active : 'text-ink-2 hover:bg-rail',
+                  isActive ? C.active : 'text-ink-2 hover:bg-rail'
                 )}
               >
                 {f.name}
@@ -264,34 +291,44 @@ export function NullSection() {
             className="flex flex-col gap-4"
           >
             {/* 헤더 */}
-            <div className={cn('rounded-panel border px-4 py-3', C.bg, C.border, C.text)}>
-              <div className="mb-1 font-mono text-[10px] font-bold uppercase tracking-wider opacity-60">
+            <div
+              className={cn(
+                'rounded-panel border px-4 py-3',
+                C.bg,
+                C.border,
+                C.text
+              )}
+            >
+              <div className="mb-1 font-mono text-[10px] font-bold tracking-wider uppercase opacity-60">
                 {t.categoryLabel}
               </div>
               <div className="font-mono text-xl font-black">{item.name}</div>
-              <div className={cn('mt-1.5 inline-block rounded border px-2 py-0.5 font-mono text-[11px]', C.active)}>
+              <div
+                className={cn(
+                  'mt-1.5 inline-block rounded border px-2 py-0.5 font-mono text-[11px]',
+                  C.active
+                )}
+              >
                 {item.signature}
               </div>
             </div>
 
             {/* 설명 */}
-            <div className="rounded-panel border bg-paper px-4 py-3">
+            <div className="rounded-panel bg-paper border px-4 py-3">
               <Prose>{item.desc[lang]}</Prose>
             </div>
 
             {/* 예시 쿼리 */}
             <div>
-              <p className="mb-1.5 font-mono text-[11px] font-bold uppercase tracking-wider text-ink-2">
+              <p className="text-ink-2 mb-1.5 font-mono text-[11px] font-bold tracking-wider uppercase">
                 {t.exampleQuery}
               </p>
-              <div className={cn('rounded-panel border px-4 py-3', C.code)}>
-                <SqlHighlight sql={item.example} />
-              </div>
+              <SqlHighlight sql={item.example} />
             </div>
 
             {/* 실행 결과 */}
             <div>
-              <p className="mb-2 font-mono text-[11px] font-bold uppercase tracking-wider text-ink-2">
+              <p className="text-ink-2 mb-2 font-mono text-[11px] font-bold tracking-wider uppercase">
                 {t.result}
               </p>
               <MiniTable
@@ -305,8 +342,16 @@ export function NullSection() {
             {item.note && (
               <>
                 <Divider />
-                <div className={cn('rounded-panel border px-4 py-3 text-xs leading-relaxed', C.bg, C.border, C.text)}>
-                  <span className="mr-1.5 font-bold">💡</span>{item.note[lang]}
+                <div
+                  className={cn(
+                    'rounded-panel border px-4 py-3 text-xs leading-relaxed',
+                    C.bg,
+                    C.border,
+                    C.text
+                  )}
+                >
+                  <span className="mr-1.5 font-bold">💡</span>
+                  {item.note[lang]}
                 </div>
               </>
             )}
@@ -316,4 +361,3 @@ export function NullSection() {
     </PageContainer>
   )
 }
-
