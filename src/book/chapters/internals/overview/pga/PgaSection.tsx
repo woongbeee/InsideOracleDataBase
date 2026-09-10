@@ -1,8 +1,9 @@
- import { useSimulationStore } from '@/store/simulationStore'
+import { useSimulationStore } from '@/store/simulationStore'
 import {
   ChapterTitle, SectionTitle, SubTitle, Prose, InfoBox, Divider,
 } from '../../../shared'
 import { cn } from '@/lib/utils'
+import { OracleArchitectureDiagram } from '../../shared/OracleArchitectureDiagram'
 import {
   IconDatabase,
   IconSortAscending,
@@ -223,98 +224,6 @@ function ComponentCard({
   )
 }
 
-// ── PGA 구조 다이어그램 (HTML div 기반, 가로 100% / 높이 고정) ──
-export function PgaComponentDiagram({ lang }: { lang: 'ko' | 'en' }) {
-  const isKo = lang === 'ko'
-
-  return (
-    <div className="w-full rounded-panel border-2 border-purple/50 bg-purple/5 p-3">
-      {/* PGA 헤더 */}
-      <div className="mb-2 flex items-center gap-2">
-        <span className="rounded bg-purple px-2 py-0.5 font-mono text-xs font-bold text-paper">PGA</span>
-        <span className="font-mono text-xs text-purple">
-          {isKo ? '서버 프로세스 전용 메모리 — 다른 프로세스 접근 불가' : 'per-process private memory — no sharing between processes'}
-        </span>
-      </div>
-
-      {/* 3열 레이아웃 */}
-      <div className="grid grid-cols-[2fr_3fr_1.4fr] gap-2">
-
-        {/* ── 열 1: Private SQL Area ── */}
-        <div className="flex flex-col gap-1.5 rounded-card border-2 border-purple/50 bg-purple/10 p-2">
-          <div className="flex items-center gap-1.5">
-            <span className="rounded bg-purple px-1.5 py-0.5 font-mono text-[10px] font-bold text-paper">Private SQL Area</span>
-          </div>
-          <p className="font-mono text-[9px] text-purple">
-            {isKo ? '커서(Cursor) 1개당 1개 생성' : '1 per open cursor'}
-          </p>
-          <div className="flex flex-1 flex-col gap-1.5">
-            <div className="flex-1 rounded border border-purple/50 bg-purple/15 px-2 py-1.5">
-              <div className="font-mono text-[10px] font-bold text-purple">Persistent Area</div>
-              <div className="mt-0.5 font-mono text-[9px] text-purple">
-                {isKo ? '바인드 변수 값 저장' : 'bind variable values'}
-              </div>
-              <div className="mt-0.5 font-mono text-[8px] text-purple">
-                {isKo ? '커서 닫힐 때 해제' : 'freed on cursor close'}
-              </div>
-            </div>
-            <div className="flex-1 rounded border border-purple/50 bg-purple/15 px-2 py-1.5">
-              <div className="font-mono text-[10px] font-bold text-purple">Runtime Area</div>
-              <div className="mt-0.5 font-mono text-[9px] text-purple">
-                {isKo ? '실행 상태 · 페치 위치' : 'exec state · fetch pos'}
-              </div>
-              <div className="mt-0.5 font-mono text-[8px] text-purple">
-                {isKo ? 'SQL 종료 시 해제' : 'freed on SQL close'}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* ── 열 2: SQL Work Area ── */}
-        <div className="flex flex-col gap-1.5 rounded-card border-2 border-blue/50 bg-blue/10 p-2">
-          <div className="flex items-center gap-1.5">
-            <span className="rounded bg-blue px-1.5 py-0.5 font-mono text-[10px] font-bold text-paper">SQL Work Area</span>
-          </div>
-          <p className="font-mono text-[9px] text-blue">
-            {isKo ? '메모리 집약 연산 · 부족 시 Temp 스필' : 'memory-intensive ops · spills to Temp'}
-          </p>
-          <div className="flex flex-1 flex-col gap-1.5">
-            <div className="flex-1 rounded border border-blue/50 bg-blue/15 px-2 py-1.5">
-              <div className="font-mono text-[10px] font-bold text-blue">Sort Area</div>
-              <div className="mt-0.5 font-mono text-[9px] text-blue">ORDER BY / GROUP BY / {isKo ? '인덱스 빌드' : 'index build'}</div>
-            </div>
-            <div className="flex-1 rounded border border-green/50 bg-green/10 px-2 py-1.5">
-              <div className="font-mono text-[10px] font-bold text-green">Hash Area</div>
-              <div className="mt-0.5 font-mono text-[9px] text-green">Hash Join {isKo ? 'Build Input' : 'build input'}</div>
-            </div>
-            <div className="flex-1 rounded border border-amber/50 bg-amber/10 px-2 py-1.5">
-              <div className="font-mono text-[10px] font-bold text-amber">Bitmap Merge Area</div>
-              <div className="mt-0.5 font-mono text-[9px] text-amber">{isKo ? 'Bitmap Index 다중 스캔 병합' : 'Bitmap Index multi-scan merge'}</div>
-            </div>
-          </div>
-        </div>
-
-        {/* ── 열 3: UGA ── */}
-        <div className="flex flex-col gap-1.5 rounded-card border-2 border-green/50 bg-green/10 p-2">
-          <div className="flex items-center gap-1.5">
-            <span className="rounded bg-green px-1.5 py-0.5 font-mono text-[10px] font-bold text-paper">UGA</span>
-          </div>
-          <p className="font-mono text-[9px] text-green">User Global Area</p>
-          <div className="flex flex-1 flex-col gap-1 font-mono text-[9px] text-green">
-            <div>{isKo ? '세션 변수' : 'Session vars'}</div>
-            <div>{isKo ? '로그인 정보' : 'Logon info'}</div>
-            <div>{isKo ? '세션 상태' : 'Session state'}</div>
-            <div className="mt-1 border-t border-green/50 pt-1 text-[8px] text-green">
-              <div>▸ Dedicated: {isKo ? 'PGA 안에 위치' : 'lives in PGA'}</div>
-              <div className="mt-0.5">▸ Shared: {isKo ? 'Large Pool (SGA)으로 이동' : 'moves to Large Pool (SGA)'}</div>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  )
-}
 
 
 // ── SVG: Dedicated vs Shared Server ───────────────────────────────────────
@@ -456,7 +365,7 @@ export function PgaSection() {
           <ComponentCard key={c.label} icon={c.icon} label={c.label} desc={c.desc} color={c.color} />
         ))}
       </div>
-      <PgaComponentDiagram lang={lang} />
+      <OracleArchitectureDiagram scope="pga" />
 
       <Divider />
 

@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useSimulationStore } from '@/store/simulationStore'
 import { ChapterTitle, SectionTitle, SubTitle, Prose, InfoBox, Divider } from '../../../../shared'
 import { cn } from '@/lib/utils'
-import { SgaPositionDiagram } from '../shared/SgaPositionDiagram'
+import { OracleArchitectureDiagram } from '../../../shared/OracleArchitectureDiagram'
 
 // ── Translation strings ────────────────────────────────────────────────────
 
@@ -579,7 +579,7 @@ export function RedoLogBufferSection() {
     <div className="mx-auto max-w-screen-2xl px-10 py-10">
       <ChapterTitle title={t.title} subtitle={t.subtitle} />
 
-      <SgaPositionDiagram activeId="redo-log-buffer" />
+      <OracleArchitectureDiagram scope="sga" highlightIds={['redo-buffer']} />
 
       {/* ── What is ── */}
       <SectionTitle>{t.whatTitle}</SectionTitle>

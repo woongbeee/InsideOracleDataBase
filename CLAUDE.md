@@ -188,12 +188,13 @@ const T = {
 **`WipBanner`** — 미완성 섹션 최상단에 배치. 현재 `BitmapSection`, `CompositeSection`에 적용 중.
 
 **Internals 챕터 특이사항:**
-- **`shared/OracleArchitectureDiagram.tsx` — Oracle 내부 구조 다이어그램의 공통 컴포넌트.** 프로그램 전체에서 이걸 쓴다. Instance 안에 SGA·PGA·Background Processes 가 올바르게 중첩되고(공식 "Database Instance" 그림), Server Process ↔ 메모리 영역 접근 관계(owns PGA / reads·writes SGA)까지 표현한다. `variant` prop 으로 두 모드:
+- **`shared/OracleArchitectureDiagram.tsx` — Oracle 내부 구조 다이어그램의 공통 컴포넌트.** 프로그램 전체에서 이걸 쓴다(SGA·PGA·Buffer Cache·Shared Pool·Large Pool·Redo Log Buffer 하위 페이지 전부 포함). Instance 안에 SGA·PGA·Background Processes 가 올바르게 중첩되고(공식 "Database Instance" 그림), Server Process ↔ 메모리 영역 접근 관계(owns PGA / reads·writes SGA)까지 표현한다. `variant` prop 으로 두 모드:
   - `variant="simple"` — 이름표만. 각 영역이 클릭 이벤트를 받는다 (`onSelect(id: ArchComponentId)` 콜백 또는 부모의 `data-arch-id` 위임). **클릭 시 동작은 각 페이지가 정의한다** (예: `OverviewSection` 은 클릭 시 아래에 해설 카드를 띄움).
   - `variant="detail"` — 각 영역에 한 줄 설명이 인라인으로 들어감. 클릭 없음(비인터랙티브).
-  - 기타 props: `highlightIds`(영역+자식 강조, 나머지 dim — 단계 애니메이션용), `hideClient`, `hideDatabase`, `callout`
-- 기존 `OracleInstanceMap.tsx` 는 그대로 유지 — buffer-cache DBWn 플로우·`SgaPositionDiagram`·`MapPanel(shared.tsx)` 이 아직 쓴다. 새 코드에서 Oracle 인스턴스 전체 구조를 그릴 땐 `OracleArchitectureDiagram` 을 쓸 것.
-- `overview/sga/shared/SgaPositionDiagram.tsx`의 `SgaPositionDiagram`을 SGA 하위 4개 페이지가 공유 (`activeId: SgaComponentId` prop) — 내부적으로 `OracleMemoryDiagram(scope="sga")` 래퍼
+  - `scope` prop (기본 `"all"`) — `"sga"`\|`"pga"`\|`"bg-processes"`\|`"database"`를 넘기면 Instance 전체 대신 해당 영역 하나만 확대해서 단독 렌더링한다(Instance 외곽·Client/Server Process 행·다른 영역 생략). SGA 하위 페이지(SharedPool·BufferCache·LargePool·RedoLogBuffer)는 `scope="sga"` + `highlightIds`로 정적 표시, PGA 개요 페이지는 `scope="pga"`로 사용.
+  - 기타 props: `highlightIds`(영역+자식 강조, 나머지는 기본 스타일 유지 — blur 없음), `hideClient`, `hideDatabase`, `callout`
+  - **클릭 이벤트를 다이어그램에 직접 연결할 때는 `Box`/`Frame`/`Instance` 컨테이너 각각의 `onClick`에 `e.stopPropagation()`이 걸려 있어야 한다** — 없으면 자식(Shared Pool 등) 클릭이 부모(SGA Frame)까지 버블링되어 항상 부모만 반응하는 것처럼 보이는 버그가 재발한다.
+- `OracleInstanceMap.tsx`/`SgaPositionDiagram.tsx`/`OracleMemoryDiagram.tsx`는 **레거시** — 새 코드에서 쓰지 말 것. dim(블러) 처리가 남아있고 클릭 이벤트에 stopPropagation이 없어 위 버그가 재현될 수 있다. 정의 파일만 남아있고 실제 페이지에서는 더 이상 참조되지 않는다.
 - `StorageSection.tsx`: 각 계층(Block·Extent·Segment·Tablespace)은 `AccordionSection` 안에 전용 Diagram 컴포넌트 + `Prose` + `Table` 구조
 
 **Index 챕터 특이사항:**

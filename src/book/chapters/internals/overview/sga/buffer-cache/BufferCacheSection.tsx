@@ -3,9 +3,8 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useSimulationStore } from '@/store/simulationStore'
 import { ChapterTitle, SectionTitle, Prose, InfoBox, Divider, SubTitle, SqlBlock, StepList } from '../../../../shared'
 import { cn } from '@/lib/utils'
-import { SgaPositionDiagram } from '../shared/SgaPositionDiagram'
-import { OracleInstanceMap } from '@/book/chapters/internals/shared/OracleInstanceMap'
-import type { InstanceComponentId } from '@/book/chapters/internals/shared/OracleInstanceMap'
+import { OracleArchitectureDiagram } from '@/book/chapters/internals/shared/OracleArchitectureDiagram'
+import type { ArchComponentId } from '@/book/chapters/internals/shared/OracleArchitectureDiagram'
 import {
   IconDatabase,
   IconLayersLinked,
@@ -124,32 +123,32 @@ const T = {
       'Buffer Cache에 수정된 Dirty 버퍼는 즉시 디스크에 쓰이지 않아요. DBWn(Database Writer, 데이터베이스 라이터)이 적절한 시점에 일괄로 써요. 이 과정에서 CKPT(체크포인트), LGWR(로그 라이터), Redo Log Buffer, Online Redo Log가 함께 관여해요.',
     dbwnSteps: [
       {
-        ids: ['buffer-cache'] as InstanceComponentId[],
+        ids: ['buffer-cache'] as ArchComponentId[],
         title: 'Dirty 버퍼 누적',
         desc: '트랜잭션이 블록을 수정하면 Buffer Cache 안의 해당 버퍼가 Dirty 상태가 돼요. Dirty 버퍼는 Dirty List(LRUW 리스트)에 등록되어 DBWn이 쓸 차례를 기다려요.',
       },
       {
-        ids: ['redo-buffer'] as InstanceComponentId[],
+        ids: ['redo-buffer'] as ArchComponentId[],
         title: 'Redo 항목 생성',
         desc: '블록 수정과 동시에 변경 내용(Before/After Image)을 담은 Redo 항목이 Redo Log Buffer에 기록돼요. 이 기록이 있어야 장애 시 복구가 가능해요.',
       },
       {
-        ids: ['ckpt', 'dbwr'] as InstanceComponentId[],
+        ids: ['ckpt', 'dbwr'] as ArchComponentId[],
         title: 'CKPT → DBWn 신호',
         desc: 'Checkpoint가 발생하면 CKPT(체크포인트) 프로세스가 DBWn에게 Dirty 버퍼를 디스크에 쓰도록 신호를 보내요. Checkpoint는 Log Switch·설정 시간 초과·SHUTDOWN 등에 의해 트리거돼요.',
       },
       {
-        ids: ['lgwr', 'redo-buffer', 'redo-log-file'] as InstanceComponentId[],
+        ids: ['lgwr', 'redo-buffer', 'redo-log-file'] as ArchComponentId[],
         title: 'LGWR Write-Ahead',
         desc: 'DBWn이 Dirty 버퍼를 디스크에 쓰기 전, 해당 버퍼와 관련된 Redo 항목이 먼저 Online Redo Log 파일에 기록되어야 해요(WAL — Write-Ahead Logging). LGWR(로그 라이터)가 Redo Log Buffer의 내용을 Online Redo Log에 플러시한 뒤 DBWn에게 완료를 알려요.',
       },
       {
-        ids: ['dbwr', 'disk'] as InstanceComponentId[],
+        ids: ['dbwr', 'data-file'] as ArchComponentId[],
         title: 'DBWn → Data Files',
         desc: 'LGWR가 Redo를 먼저 기록한 뒤, DBWn이 Dirty 버퍼들을 Data Files에 써요. 기록된 버퍼는 Clean 상태가 되어 재사용할 수 있어요.',
       },
       {
-        ids: ['ckpt', 'control-file', 'disk'] as InstanceComponentId[],
+        ids: ['ckpt', 'control-file', 'data-file'] as ArchComponentId[],
         title: 'CKPT → 헤더 갱신',
         desc: 'DBWn 쓰기가 완료되면 CKPT가 Control File과 Data File 헤더의 Checkpoint SCN을 갱신해요. 이 SCN 이전 데이터는 디스크에 안전하게 보존되어 있다는 뜻이에요.',
       },
@@ -277,32 +276,32 @@ const T = {
       'Dirty buffers in the Buffer Cache are not written to disk immediately. DBWn (Database Writer) batches them and flushes at the right moment — with CKPT, LGWR, the Redo Log Buffer, and Online Redo Logs all playing a role.',
     dbwnSteps: [
       {
-        ids: ['buffer-cache'] as InstanceComponentId[],
+        ids: ['buffer-cache'] as ArchComponentId[],
         title: 'Dirty Buffers Accumulate',
         desc: 'When a transaction modifies a block, the corresponding buffer in the Buffer Cache becomes Dirty. Dirty buffers are added to the Dirty List (LRUW list) and wait for DBWn to write them out.',
       },
       {
-        ids: ['redo-buffer'] as InstanceComponentId[],
+        ids: ['redo-buffer'] as ArchComponentId[],
         title: 'Redo Entries Generated',
         desc: 'As each block is modified, a redo entry capturing the before and after image is written to the Redo Log Buffer. These entries make crash recovery possible.',
       },
       {
-        ids: ['ckpt', 'dbwr'] as InstanceComponentId[],
+        ids: ['ckpt', 'dbwr'] as ArchComponentId[],
         title: 'CKPT Signals DBWn',
         desc: 'When a checkpoint fires, the CKPT process signals DBWn to flush dirty buffers to disk. Checkpoints are triggered by log switches, the checkpoint interval timeout, or a SHUTDOWN command.',
       },
       {
-        ids: ['lgwr', 'redo-buffer', 'redo-log-file'] as InstanceComponentId[],
+        ids: ['lgwr', 'redo-buffer', 'redo-log-file'] as ArchComponentId[],
         title: 'LGWR Write-Ahead',
         desc: 'Before DBWn writes any dirty buffer to disk, the redo entries for those buffers must already be in the Online Redo Log files — this is the WAL (Write-Ahead Logging) guarantee. LGWR flushes the Redo Log Buffer to the Online Redo Logs first, then signals DBWn that it is safe to proceed.',
       },
       {
-        ids: ['dbwr', 'disk'] as InstanceComponentId[],
+        ids: ['dbwr', 'data-file'] as ArchComponentId[],
         title: 'DBWn → Data Files',
         desc: 'Once LGWR has secured the redo, DBWn writes the dirty buffers to the Data Files. Each written buffer transitions back to Clean and becomes available for reuse.',
       },
       {
-        ids: ['ckpt', 'control-file', 'disk'] as InstanceComponentId[],
+        ids: ['ckpt', 'control-file', 'data-file'] as ArchComponentId[],
         title: 'CKPT Updates Headers',
         desc: 'After DBWn finishes writing, CKPT updates the Checkpoint SCN in the Control File and in each Data File header. Any data block up to this SCN is guaranteed to be safely on disk.',
       },
@@ -491,7 +490,7 @@ function DbwnWriteFlow({ lang }: { lang: 'ko' | 'en' }) {
   return (
     <div className="flex gap-6">
       <div className="w-[480px] shrink-0">
-        <OracleInstanceMap highlightIds={step.ids} hideClient />
+        <OracleArchitectureDiagram highlightIds={step.ids} hideClient />
       </div>
       <div className="flex-1">
         <StepList
@@ -592,7 +591,7 @@ export function SgaBufferCacheSection() {
         title={t.title}
       />
 
-      <SgaPositionDiagram activeId="buffer-cache" />
+      <OracleArchitectureDiagram scope="sga" highlightIds={['buffer-cache']} />
 
       {/* ── 1. What is Buffer Cache ── */}
       <SectionTitle>{t.whatTitle}</SectionTitle>

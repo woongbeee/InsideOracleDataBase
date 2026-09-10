@@ -2,7 +2,7 @@ import { useSimulationStore } from '@/store/simulationStore'
 import {
   ChapterTitle, SectionTitle, SubTitle, Prose, InfoBox, Divider, SqlBlock,
 } from '../../../../shared'
-import { SgaPositionDiagram } from '../shared/SgaPositionDiagram'
+import { OracleArchitectureDiagram } from '../../../shared/OracleArchitectureDiagram'
 import { cn } from '@/lib/utils'
 import {
   IconDatabase,
@@ -352,7 +352,7 @@ export function LargePoolSection() {
     <div className="mx-auto max-w-screen-2xl px-10 py-10">
       <ChapterTitle title={t.title} subtitle={t.subtitle} />
 
-      <SgaPositionDiagram activeId="large-pool" />
+      <OracleArchitectureDiagram scope="sga" highlightIds={['large-pool']} />
 
       {/* ── What is ── */}
       <SectionTitle>{t.whatTitle}</SectionTitle>

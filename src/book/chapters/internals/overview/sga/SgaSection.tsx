@@ -9,8 +9,8 @@ import {
   IconServer,
   IconNetwork,
 } from '@tabler/icons-react'
-import { SgaPositionDiagram } from './shared/SgaPositionDiagram'
-import type { SgaComponentId } from './shared/SgaPositionDiagram'
+import { OracleArchitectureDiagram } from '../../shared/OracleArchitectureDiagram'
+import type { ArchComponentId } from '../../shared/OracleArchitectureDiagram'
 
 // ── Translation strings ────────────────────────────────────────────────────
 
@@ -89,7 +89,7 @@ const COMPARISON_ROWS = {
 type SgaDetail = { term: string; desc: string; isParam?: boolean }
 
 type SgaComponent = {
-  id: string
+  id: ArchComponentId
   labelKo: string
   labelEn: string
   tagColor: string
@@ -172,6 +172,42 @@ const SGA_COMPONENTS: SgaComponent[] = [
       { term: 'LARGE_POOL_SIZE', desc: 'Parameter that sets Large Pool size. If not set, no Large Pool is created.', isParam: true },
     ],
   },
+  {
+    id: 'java-pool',
+    labelKo: 'Java Pool',
+    labelEn: 'Java Pool',
+    tagColor: 'bg-green',
+    descKo: 'Oracle 안에서 자바 스토어드 프로시저(Java Stored Procedure)를 실행할 때, JVM(Java Virtual Machine)이 클래스 정의나 세션별 상태를 올려두는 공간이에요. 자바 기반 기능을 쓰지 않으면 거의 비어 있는 영역이에요.',
+    descEn: 'When Oracle runs Java stored procedures internally, the JVM (Java Virtual Machine) uses this area to hold class definitions and per-session state. If the database does not use Java-based features, this area stays mostly empty.',
+    detailsKo: [
+      { term: 'JVM 클래스 정의', desc: '자바 클래스와 메서드의 정의를 메모리에 올려둬서 매번 다시 로드하지 않아도 돼요.' },
+      { term: '세션별 자바 상태', desc: 'Dedicated Server에서는 PGA와 유사하게, Shared Server에서는 UGA처럼 세션별 자바 객체 상태를 보관해요.' },
+      { term: 'JAVA_POOL_SIZE', desc: 'Java Pool 크기를 지정하는 파라미터예요. 자바 기능을 안 쓰면 작게 잡아도 돼요.', isParam: true },
+    ],
+    detailsEn: [
+      { term: 'JVM class definitions', desc: 'Keeps Java class and method definitions in memory so they are not reloaded on every call.' },
+      { term: 'Per-session Java state', desc: 'Similar to the PGA in Dedicated Server mode, or the UGA in Shared Server mode — holds per-session Java object state.' },
+      { term: 'JAVA_POOL_SIZE', desc: 'Parameter that sets Java Pool size. Can be kept small if Java features are unused.', isParam: true },
+    ],
+  },
+  {
+    id: 'fixed-sga',
+    labelKo: 'Fixed SGA',
+    labelEn: 'Fixed SGA',
+    tagColor: 'bg-ink-3',
+    descKo: '인스턴스 상태, 백그라운드 프로세스가 서로를 찾는 데 필요한 포인터 등 Oracle 내부적으로만 쓰는 작은 고정 크기 영역이에요. 사용자가 직접 조절할 수 없고, 크기도 아주 작아요(보통 수백 KB 수준).',
+    descEn: 'A small, fixed-size area holding internal bookkeeping — instance state, pointers background processes use to locate each other, and similar bootstrap data. Users cannot resize it directly, and it typically stays only a few hundred KB.',
+    detailsKo: [
+      { term: '인스턴스 부팅 정보', desc: '인스턴스가 시작될 때 필요한 내부 상태 값들을 담고 있어요.' },
+      { term: '프로세스 간 포인터', desc: '백그라운드 프로세스들이 SGA의 다른 영역을 찾아가는 데 쓰는 내부 포인터가 여기 있어요.' },
+      { term: '크기 조절 불가', desc: 'Fixed SGA는 Oracle 소프트웨어 버전과 플랫폼에 의해 크기가 고정돼요. 파라미터로 직접 조정할 수 없어요.' },
+    ],
+    detailsEn: [
+      { term: 'Instance bootstrap data', desc: 'Holds internal state values required when the instance starts up.' },
+      { term: 'Inter-process pointers', desc: 'Background processes use internal pointers stored here to locate other SGA regions.' },
+      { term: 'Not resizable', desc: "Fixed SGA size is determined by the Oracle software version and platform — it cannot be tuned with a parameter." },
+    ],
+  },
 ]
 
 // ── ServerModeCard ─────────────────────────────────────────────────────────
@@ -215,11 +251,12 @@ export function SgaSection() {
   const t = T[lang]
 
   const [serverMode, setServerMode] = useState<'dedicated' | 'rac'>('dedicated')
-  const [activeComponentId, setActiveComponentId] = useState<string | null>(null)
+  const [activeComponentId, setActiveComponentId] = useState<ArchComponentId | null>(null)
 
   const activeComponent = SGA_COMPONENTS.find((c) => c.id === activeComponentId) ?? null
 
-  function handleComponentSelect(id: string) {
+  function handleComponentSelect(id: ArchComponentId) {
+    if (!SGA_COMPONENTS.some((c) => c.id === id)) return
     setActiveComponentId((prev) => (prev === id ? null : id))
   }
 
@@ -239,115 +276,93 @@ export function SgaSection() {
       <Prose>{t.whatP2}</Prose>
       <Prose>{t.whatP3}</Prose>
 
-      <SgaPositionDiagram
-        activeId={((): SgaComponentId | null => {
-          const MAP: Record<string, SgaComponentId> = {
-            'buffer-cache': 'buffer-cache',
-            'shared-pool': 'shared-pool',
-            'redo-buffer': 'redo-log-buffer',
-            'large-pool': 'large-pool',
-          }
-          if (!activeComponentId) return null
-          return MAP[activeComponentId] ?? null
-        })()}
-      />
+      {/* Map (left, ~40%) + Detail card (right) */}
+      <div className="mb-4 flex flex-col gap-6 lg:flex-row lg:items-start">
+        <div className="lg:sticky lg:top-6 lg:w-[40%] lg:shrink-0">
+          <OracleArchitectureDiagram
+            scope="sga"
+            onSelect={handleComponentSelect}
+            highlightIds={activeComponentId ? [activeComponentId] : []}
+          />
+        </div>
 
-      {/* Component selector pills */}
-      <div className="flex flex-wrap gap-2 mb-4">
-        {SGA_COMPONENTS.map((c) => {
-          const isActive = activeComponentId === c.id
-          return (
-            <button
-              key={c.id}
-              onClick={() => handleComponentSelect(c.id)}
-              className={cn(
-                'rounded-card border px-4 py-2 font-mono text-xs font-bold transition-all',
-                isActive
-                  ? `${c.tagColor} border-transparent text-paper `
-                  : 'border-line bg-paper text-ink-2 hover:border-line-2 hover:text-ink',
-              )}
-            >
-              {lang === 'ko' ? c.labelKo : c.labelEn}
-            </button>
-          )
-        })}
-      </div>
-
-      {/* Detail card */}
-      <AnimatePresence mode="wait">
-        {activeComponent ? (
-          <motion.div
-            key={activeComponent.id}
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-            transition={{ duration: 0.18 }}
-            className="mb-4 rounded-panel border border-line bg-paper overflow-hidden"
-          >
-            <div className="flex items-center gap-2.5 border-b border-line bg-rail px-5 py-3">
-              <span className={cn('rounded px-2.5 py-0.5 font-mono text-xs font-bold text-paper', activeComponent.tagColor)}>
-                {lang === 'ko' ? activeComponent.labelKo : activeComponent.labelEn}
-              </span>
-            </div>
-            <div className="px-5 py-4 border-b border-line">
-              <p className="text-sm leading-relaxed text-ink-2">
-                {lang === 'ko' ? activeComponent.descKo : activeComponent.descEn}
-              </p>
-            </div>
-            {(() => {
-              const details = lang === 'ko' ? activeComponent.detailsKo : activeComponent.detailsEn
-              const normal = details.filter((r) => !r.isParam)
-              const params = details.filter((r) => r.isParam)
-              return (
-                <div className="flex flex-col divide-y divide-line">
-                  {normal.map((row, i) => (
-                    <div key={i} className="grid grid-cols-[180px_1fr] text-xs">
-                      <div className="flex items-center border-r border-line bg-rail px-4 py-2.5">
-                        <span className="font-mono font-bold text-ink">{row.term}</span>
-                      </div>
-                      <div className="flex items-center px-4 py-2.5">
-                        <span className="leading-snug text-ink-2">{row.desc}</span>
-                      </div>
-                    </div>
-                  ))}
-                  {params.length > 0 && (
-                    <>
-                      <div className="flex items-center gap-2 bg-paper-sunk px-4 py-1.5 border-t border-line">
-                        <span className="rounded border border-line-2 bg-paper-sunk px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider text-ink-2">
-                          PARAMETER
-                        </span>
-                        <span className="text-[10px] text-ink-2">
-                          {lang === 'ko' ? '관련 초기화 파라미터' : 'Initialization parameter'}
-                        </span>
-                      </div>
-                      {params.map((row, i) => (
-                        <div key={i} className="grid grid-cols-[180px_1fr] text-xs bg-paper-sunk">
-                          <div className="flex items-center border-r border-line bg-paper-sunk px-4 py-2.5">
-                            <span className="font-mono font-bold text-ink-2">{row.term}</span>
+        <div className="min-w-0 flex-1">
+          <AnimatePresence mode="wait">
+            {activeComponent ? (
+              <motion.div
+                key={activeComponent.id}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.18 }}
+                className="rounded-panel border border-line bg-paper overflow-hidden"
+              >
+                <div className="flex items-center gap-2.5 border-b border-line bg-rail px-5 py-3">
+                  <span className={cn('rounded px-2.5 py-0.5 font-mono text-xs font-bold text-paper', activeComponent.tagColor)}>
+                    {lang === 'ko' ? activeComponent.labelKo : activeComponent.labelEn}
+                  </span>
+                </div>
+                <div className="px-5 py-4 border-b border-line">
+                  <p className="text-sm leading-relaxed text-ink-2">
+                    {lang === 'ko' ? activeComponent.descKo : activeComponent.descEn}
+                  </p>
+                </div>
+                {(() => {
+                  const details = lang === 'ko' ? activeComponent.detailsKo : activeComponent.detailsEn
+                  const normal = details.filter((r) => !r.isParam)
+                  const params = details.filter((r) => r.isParam)
+                  return (
+                    <div className="flex flex-col divide-y divide-line">
+                      {normal.map((row, i) => (
+                        <div key={i} className="grid grid-cols-[160px_1fr] text-xs">
+                          <div className="flex items-center border-r border-line bg-rail px-4 py-2.5">
+                            <span className="font-sans font-bold text-ink">{row.term}</span>
                           </div>
                           <div className="flex items-center px-4 py-2.5">
                             <span className="leading-snug text-ink-2">{row.desc}</span>
                           </div>
                         </div>
                       ))}
-                    </>
-                  )}
-                </div>
-              )
-            })()}
-          </motion.div>
-        ) : (
-          <motion.div
-            key="empty"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="mb-4 flex h-16 items-center justify-center rounded-panel border-2 border-dashed border-line"
-          >
-            <span className="font-mono text-sm text-ink-2">↑ {t.clickHint}</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
+                      {params.length > 0 && (
+                        <>
+                          <div className="flex items-center gap-2 bg-paper-sunk px-4 py-1.5 border-t border-line">
+                            <span className="rounded border border-line-2 bg-paper-sunk px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider text-ink-2">
+                              PARAMETER
+                            </span>
+                            <span className="text-[10px] text-ink-2">
+                              {lang === 'ko' ? '관련 초기화 파라미터' : 'Initialization parameter'}
+                            </span>
+                          </div>
+                          {params.map((row, i) => (
+                            <div key={i} className="grid grid-cols-[160px_1fr] text-xs bg-paper-sunk">
+                              <div className="flex items-center border-r border-line bg-paper-sunk px-4 py-2.5">
+                                <span className="font-mono font-bold text-ink-2">{row.term}</span>
+                              </div>
+                              <div className="flex items-center px-4 py-2.5">
+                                <span className="leading-snug text-ink-2">{row.desc}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </>
+                      )}
+                    </div>
+                  )
+                })()}
+              </motion.div>
+            ) : (
+              <motion.div
+                key="empty"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="flex h-16 items-center justify-center rounded-panel border-2 border-dashed border-line lg:h-full lg:min-h-[10rem]"
+              >
+                <span className="font-mono text-sm text-ink-2">{t.clickHint}</span>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
 
       <Divider />
 

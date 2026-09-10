@@ -5,7 +5,7 @@ import {
   ChapterTitle, SectionTitle, Prose, InfoBox, Divider, SubTitle, SqlBlock,
 } from '../../../../shared'
 import { cn } from '@/lib/utils'
-import { SgaPositionDiagram } from '../shared/SgaPositionDiagram'
+import { OracleArchitectureDiagram } from '../../../shared/OracleArchitectureDiagram'
 import {
   IconBolt,
   IconSearch,
@@ -642,7 +642,7 @@ export function SharedPoolSection() {
     <div className="mx-auto max-w-screen-2xl px-10 py-10">
       <ChapterTitle title={t.title} subtitle={t.subtitle} />
 
-      <SgaPositionDiagram activeId="shared-pool" />
+      <OracleArchitectureDiagram scope="sga" highlightIds={['shared-pool']} />
 
       {/* ── What is Shared Pool ── */}
       <SectionTitle>{t.whatTitle}</SectionTitle>

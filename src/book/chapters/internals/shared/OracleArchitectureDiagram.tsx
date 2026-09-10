@@ -73,18 +73,24 @@ export type ArchComponentId =
 
 type Variant = 'simple' | 'detail'
 
+/** 'all'(기본) — Instance 전체(Client→Server→SGA/PGA/BG→Database).
+ *  개별 값 — 해당 영역 하나만 단독으로 확대해서 렌더링(Instance 외곽·다른 영역 생략). */
+type Scope = 'all' | 'sga' | 'pga' | 'bg-processes' | 'database'
+
 interface Props {
   /** 'simple' — 이름표 + 클릭 이벤트 / 'detail' — 인라인 설명 포함, 클릭 없음 */
   variant?: Variant
+  /** 'all'(기본) 전체 구조 / 개별 값 — 그 영역만 확대해서 단독 렌더링 */
+  scope?: Scope
   /** simple 모드: 영역 클릭 콜백. 부모에서 data-arch-id 로 직접 잡아도 된다. */
   onSelect?: (id: ArchComponentId) => void
   /** 강조할 영역들 (그룹을 넘기면 소속 자식도 함께 강조). 비면 전체 기본색. */
   highlightIds?: ArchComponentId[]
-  /** Client / Server Process 행을 숨긴다 (좁은 사이드바 등) */
+  /** Client / Server Process 행을 숨긴다 (좁은 사이드바 등) — scope="all"에서만 유효 */
   hideClient?: boolean
   /** 다이어그램 위 한 줄 안내 문구 */
   callout?: string
-  /** Database(디스크) 블록을 숨긴다 — 메모리 구조에만 집중하고 싶을 때 */
+  /** Database(디스크) 블록을 숨긴다 — scope="all"에서만 유효 */
   hideDatabase?: boolean
   className?: string
 }
@@ -114,7 +120,7 @@ const HUE: Record<Hue, { text: string; base: string; lit: string; hover: string;
   slate:  { text: 'text-ink-2',      base: 'border-line-2',         lit: 'border-ink-3 bg-rail',               hover: 'hover:bg-ink/[0.03]',   accent: 'border-l-line-2',     ring: 'ring-line-2' },
 }
 
-type State = 'lit' | 'base' | 'dim'
+type State = 'lit' | 'base'
 
 // ── 클릭 가능한 이름표 박스 ──────────────────────────────────────────────────
 function Box({
@@ -136,16 +142,21 @@ function Box({
     <button
       type="button"
       data-arch-id={id}
-      onClick={clickable ? () => onSelect?.(id) : undefined}
+      onClick={
+        clickable
+          ? (e) => {
+              e.stopPropagation()
+              onSelect?.(id)
+            }
+          : undefined
+      }
       aria-hidden={!clickable}
       tabIndex={clickable ? 0 : -1}
       className={cn(
-        'flex min-w-0 flex-col items-center justify-center gap-0.5 rounded-card border px-2.5 py-2 text-center transition-all',
-        state === 'dim'
-          ? 'border-line opacity-40'
-          : state === 'lit'
-            ? h.lit
-            : cn('bg-paper', h.base, clickable && h.hover),
+        'flex w-full min-w-0 flex-col items-center justify-center gap-0.5 rounded-card border px-2.5 py-2 text-center transition-all',
+        state === 'lit'
+          ? cn(h.lit, 'ring-1 ring-inset', h.ring)
+          : cn('bg-paper', h.base, clickable && h.hover),
         clickable ? 'cursor-pointer' : 'cursor-default',
         className,
       )}
@@ -154,13 +165,13 @@ function Box({
         className={cn(
           'leading-tight',
           mono ? 'font-mono text-[11px] font-bold tracking-wide' : 'font-sans text-[11.5px] font-semibold',
-          state === 'dim' ? 'text-ink-3' : h.text,
+          h.text,
         )}
       >
         {label}
       </span>
       {variant === 'detail' && note && (
-        <span className={cn('font-sans text-[9.5px] font-normal leading-snug', state === 'dim' ? 'text-ink-3/70' : 'text-ink-2')}>
+        <span className="font-sans text-[9.5px] font-normal leading-snug text-ink-2">
           {note}
         </span>
       )}
@@ -187,21 +198,28 @@ function Frame({
   return (
     <div
       data-arch-id={id}
-      onClick={clickable ? () => onSelect?.(id!) : undefined}
+      onClick={
+        clickable
+          ? (e) => {
+              e.stopPropagation()
+              onSelect?.(id!)
+            }
+          : undefined
+      }
       className={cn(
         'rounded-panel border border-l-[3px] bg-paper p-3 transition-all',
-        state === 'dim' ? 'border-line border-l-line opacity-40' : cn('border-line', h.accent),
+        cn('border-line', h.accent),
         state === 'lit' && cn('ring-1 ring-inset', h.ring),
         clickable ? 'cursor-pointer' : '',
         className,
       )}
     >
       <div className="mb-2 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-        <span className={cn('font-mono text-[9px] font-bold uppercase tracking-[0.12em]', state === 'dim' ? 'text-ink-3/60' : 'text-ink-3')}>
+        <span className="font-mono text-[9px] font-bold uppercase tracking-[0.12em] text-ink-3">
           {kicker}
         </span>
         {variant === 'detail' && note && (
-          <span className={cn('font-sans text-[9.5px] leading-snug', state === 'dim' ? 'text-ink-3/60' : 'text-ink-2')}>
+          <span className="font-sans text-[9.5px] leading-snug text-ink-2">
             {note}
           </span>
         )}
@@ -222,6 +240,7 @@ function AccessLine({ children }: { children: ReactNode }) {
 
 export function OracleArchitectureDiagram({
   variant = 'simple',
+  scope = 'all',
   onSelect,
   highlightIds = [],
   hideClient = false,
@@ -236,10 +255,9 @@ export function OracleArchitectureDiagram({
   // 강조 집합 = 넘어온 id + 각 id 의 그룹 소속까지 펼침
   const hlSet = new Set<ArchComponentId>(highlightIds)
   for (const id of highlightIds) for (const m of GROUP[id] ?? []) hlSet.add(m)
-  const anyHl = highlightIds.length > 0
   const on = (...ids: ArchComponentId[]) =>
     ids.some((id) => hlSet.has(id) || (GROUP[id] ?? []).some((m) => hlSet.has(m)))
-  const st = (hit: boolean): State => (!anyHl ? 'base' : hit ? 'lit' : 'dim')
+  const st = (hit: boolean): State => (hit ? 'lit' : 'base')
 
   // ── Client ─▶ Server Process 행 ────────────────────────────────────────────
   const clientRow = !hideClient && (
@@ -415,6 +433,19 @@ export function OracleArchitectureDiagram({
     </div>
   )
 
+  // scope 로 개별 영역 하나만 단독 렌더링 — Instance 외곽·다른 영역 없이, 확대된 형태로.
+  if (scope !== 'all') {
+    const SCOPE_CONTENT: Record<Exclude<Scope, 'all'>, ReactNode> = {
+      sga, pga, 'bg-processes': bg, database: db,
+    }
+    return (
+      <figure className={cn('flex flex-col gap-2.5 overflow-x-auto', className)}>
+        {callout && <figcaption className="font-sans text-[11px] text-ink-2">{callout}</figcaption>}
+        {SCOPE_CONTENT[scope]}
+      </figure>
+    )
+  }
+
   return (
     <figure className={cn('flex flex-col gap-2.5 overflow-x-auto', className)}>
       {callout && <figcaption className="font-sans text-[11px] text-ink-2">{callout}</figcaption>}
@@ -425,10 +456,17 @@ export function OracleArchitectureDiagram({
       {/* Instance = SGA + PGA + Background Processes */}
       <div
         data-arch-id="instance"
-        onClick={variant === 'simple' && onSelect ? () => onSelect('instance') : undefined}
+        onClick={
+          variant === 'simple' && onSelect
+            ? (e) => {
+                e.stopPropagation()
+                onSelect('instance')
+              }
+            : undefined
+        }
         className={cn(
           'rounded-panel border-2 bg-paper-sunk p-2.5 transition-all',
-          st(on('instance')) === 'dim' ? 'border-line opacity-40' : 'border-line-2',
+          'border-line-2',
           st(on('instance')) === 'lit' && 'ring-1 ring-inset ring-viz-blue/30',
           variant === 'simple' && onSelect ? 'cursor-pointer' : '',
         )}
